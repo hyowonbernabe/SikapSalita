@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sikap-Salita — FSL Live Demo</title>
+  <style>
+    :root {
+      --bg:       #222831;
+      --surface:  #393E46;
+      --muted:    #948979;
+      --primary:  #DFD0B8;
+      --accent:   #4caf82;
+      --header-h: 52px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--primary);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────── */
+    header {
+      height: var(--header-h);
+      background: var(--surface);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .brand-icon {
+      width: 34px; height: 34px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: -.5px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    .brand-text .wordmark {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      color: var(--primary);
+    }
+    .brand-text .tagline {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: .03em;
+    }
+
+    .spacer { flex: 1; }
+
+    .live-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(76,175,130,.12);
+      border: 1px solid rgba(76,175,130,.3);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: .04em;
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .4; transform: scale(.8); }
+    }
+
+    .tag {
+      background: var(--bg);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: .03em;
+    }
+
+    /* ── Camera area ─────────────────────────────────────────────────── */
+    .cam-wrap {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      background: #111;
+    }
+
+    #cam {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scaleX(-1); /* mirror — more natural for presenter */
+    }
+
+    /* ── Warmup overlay ──────────────────────────────────────────────── */
+    #warmup {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: rgba(34,40,49,.65);
+      backdrop-filter: blur(4px);
+      transition: opacity .5s;
+    }
+    #warmup.hidden { opacity: 0; pointer-events: none; }
+
+    .spinner {
+      width: 42px; height: 42px;
+      border: 3px solid rgba(255,255,255,.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #warmup-text {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: .05em;
+    }
+
+    #warmup-bar-wrap {
+      width: 180px;
+      height: 4px;
+      background: rgba(255,255,255,.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    #warmup-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      width: 0%;
+      transition: width .3s ease;
+    }
+
+    /* ── Prediction overlay ──────────────────────────────────────────── */
+    #overlay {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 28px 32px 28px;
+      background: linear-gradient(
+        to top,
+        rgba(34,40,49,.98) 0%,
+        rgba(34,40,49,.85) 55%,
+        transparent 100%
+      );
+    }
+
+    /* Top prediction */
+    .top-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    #top-label {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: .02em;
+      color: var(--primary);
+      transition: opacity .25s;
+      line-height: 1;
+    }
+    #top-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      align-self: center;
+    }
+    #top-conf {
+      margin-left: auto;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .bar-wrap {
+      height: 4px;
+      background: rgba(255,255,255,.08);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width .4s ease;
+    }
+    #top-bar { background: var(--accent); }
+
+    /* Runner-ups */
+    .alt-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .alt-label {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--muted);
+      min-width: 140px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .alt-conf {
+      font-size: .85rem;
+      color: var(--muted);
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .alt-bar-wrap {
+      flex: 1;
+      height: 3px;
+      background: rgba(255,255,255,.06);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .alt-bar-fill {
+      height: 100%;
+      background: var(--muted);
+      border-radius: 2px;
+      transition: width .4s ease;
+    }
+
+    /* ── No camera message ───────────────────────────────────────────── */
+    #no-cam {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+      padding: 32px;
+    }
+    #no-cam svg { opacity: .4; }
+    #no-cam.visible { display: flex; }
+
+    canvas { display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand-icon">SS</div>
+  <div class="brand-text">
+    <span class="wordmark">SIKAP-SALITA</span>
+    <span class="tagline">FSL Recognition &nbsp;·&nbsp; Saint Louis University, Baguio City</span>
+  </div>
+  <div class="spacer"></div>
+  <div class="live-pill"><div class="live-dot"></div> LIVE</div>
+  <div class="tag">SignTransformer</div>
+  <div class="tag">FSL-105</div>
+</header>
+
+<div class="cam-wrap">
+  <video id="cam" autoplay playsinline muted></video>
+  <canvas id="canvas"></canvas>
+
+  <!-- Warmup overlay -->
+  <div id="warmup">
+    <div class="spinner"></div>
+    <div id="warmup-text">Warming up — hold a sign…</div>
+    <div id="warmup-bar-wrap"><div id="warmup-bar"></div></div>
+  </div>
+
+  <!-- Prediction overlay -->
+  <div id="overlay">
+    <div class="top-row">
+      <div id="top-label">—</div>
+      <div id="top-badge">—</div>
+      <div id="top-conf">—</div>
+    </div>
+    <div class="bar-wrap"><div class="bar-fill" id="top-bar" style="width:0%"></div></div>
+
+    <div class="alt-row" id="alt1-row">
+      <div class="alt-label" id="alt1-label">—</div>
+      <div class="alt-bar-wrap"><div class="alt-bar-fill" id="alt1-bar" style="width:0%"></div></div>
+      <div class="alt-conf" id="alt1-conf">—</div>
+    </div>
+    <div class="alt-row" id="alt2-row">
+      <div class="alt-label" id="alt2-label">—</div>
+      <div class="alt-bar-wrap"><div class="alt-bar-fill" id="alt2-bar" style="width:0%"></div></div>
+      <div class="alt-conf" id="alt2-conf">—</div>
+    </div>
+  </div>
+
+  <!-- No camera fallback -->
+  <div id="no-cam">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+      <line x1="3" y1="3" x2="21" y2="21"/>
+    </svg>
+    <div>Camera access denied or unavailable.<br>Please allow camera permission and reload.</div>
+  </div>
+</div>
+
+<script>
+  const MIN_FRAMES = 30;
+  const POLL_MS    = 300;
+  const JPEG_Q     = 0.7;
+
+  const cam       = document.getElementById('cam');
+  const canvas    = document.getElementById('canvas');
+  const ctx       = canvas.getContext('2d');
+  const warmupEl  = document.getElementById('warmup');
+  const warmupTxt = document.getElementById('warmup-text');
+  const warmupBar = document.getElementById('warmup-bar');
+  const noCam     = document.getElementById('no-cam');
+
+  const topLabel  = document.getElementById('top-label');
+  const topBadge  = document.getElementById('top-badge');
+  const topConf   = document.getElementById('top-conf');
+  const topBar    = document.getElementById('top-bar');
+
+  const alt1Label = document.getElementById('alt1-label');
+  const alt1Bar   = document.getElementById('alt1-bar');
+  const alt1Conf  = document.getElementById('alt1-conf');
+
+  const alt2Label = document.getElementById('alt2-label');
+  const alt2Bar   = document.getElementById('alt2-bar');
+  const alt2Conf  = document.getElementById('alt2-conf');
+
+  let polling = false;
+
+  async function startCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+      cam.srcObject = stream;
+      cam.onloadedmetadata = () => {
+        canvas.width  = cam.videoWidth  || 640;
+        canvas.height = cam.videoHeight || 480;
+        beginPolling();
+      };
+    } catch (e) {
+      noCam.classList.add('visible');
+      console.error('Camera error:', e);
+    }
+  }
+
+  function captureFrame() {
+    ctx.drawImage(cam, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg', JPEG_Q);
+  }
+
+  function pct(v) { return Math.round(v * 100); }
+
+  function updateUI(predictions, buffered) {
+    // Update warmup bar
+    const progress = Math.min(buffered / MIN_FRAMES, 1);
+    warmupBar.style.width = (progress * 100) + '%';
+
+    if (predictions.length === 0) {
+      warmupTxt.textContent = `Warming up — ${buffered}/${MIN_FRAMES} frames buffered…`;
+      return;
+    }
+
+    // Hide warmup
+    warmupEl.classList.add('hidden');
+
+    const [p0, p1, p2] = predictions;
+
+    topLabel.textContent = p0.label;
+    topBadge.textContent = p0.category;
+    topConf.textContent  = pct(p0.confidence) + '%';
+    topBar.style.width   = pct(p0.confidence) + '%';
+
+    if (p1) {
+      alt1Label.textContent = p1.label;
+      alt1Conf.textContent  = pct(p1.confidence) + '%';
+      alt1Bar.style.width   = pct(p1.confidence) + '%';
+    }
+
+    if (p2) {
+      alt2Label.textContent = p2.label;
+      alt2Conf.textContent  = pct(p2.confidence) + '%';
+      alt2Bar.style.width   = pct(p2.confidence) + '%';
+    }
+  }
+
+  async function poll() {
+    if (polling) return;
+    polling = true;
+    try {
+      const frame = captureFrame();
+      const res   = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ frame }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      updateUI(data.predictions, data.buffered_frames);
+    } catch (e) {
+      // network blip — ignore, next tick will retry
+    } finally {
+      polling = false;
+    }
+  }
+
+  function beginPolling() {
+    setInterval(poll, POLL_MS);
+  }
+
+  startCamera();
+</script>
+</body>
+</html>
