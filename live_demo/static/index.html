@@ -40,8 +40,7 @@
     }
     .brand-icon {
       width: 34px; height: 34px;
-      background: var(--accent);
-      border-radius: 8px;
+      background: var(--accent); border-radius: 8px;
       display: grid; place-items: center;
       font-weight: 800; font-size: 13px; letter-spacing: -.5px;
       color: #fff; flex-shrink: 0;
@@ -66,13 +65,21 @@
       border-radius: 6px; padding: 3px 8px; font-size: 10px; color: var(--muted); letter-spacing: .03em;
     }
 
+    /* Language toggle */
+    .lang-toggle {
+      display: flex; background: var(--bg);
+      border: 1px solid rgba(255,255,255,.12); border-radius: 8px; overflow: hidden;
+    }
+    .lang-btn {
+      padding: 4px 12px; font-size: 11px; font-weight: 600; letter-spacing: .04em;
+      cursor: pointer; border: none; background: transparent; color: var(--muted);
+      transition: background .15s, color .15s;
+    }
+    .lang-btn.active { background: var(--accent); color: #fff; }
+
     /* ── Camera area ─────────────────────────────────────────────────── */
     .cam-wrap { position: relative; flex: 1; overflow: hidden; background: #111; }
-
-    #cam {
-      width: 100%; height: 100%; object-fit: cover; display: block;
-      transform: scaleX(-1);
-    }
+    #cam { width: 100%; height: 100%; object-fit: cover; display: block; transform: scaleX(-1); }
     #skeleton {
       position: absolute; inset: 0; width: 100%; height: 100%;
       pointer-events: none; transform: scaleX(-1);
@@ -93,10 +100,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     #warmup-text { font-size: 13px; color: var(--muted); letter-spacing: .05em; }
-    #warmup-bar-wrap {
-      width: 180px; height: 4px; background: rgba(255,255,255,.08);
-      border-radius: 2px; overflow: hidden;
-    }
+    #warmup-bar-wrap { width: 180px; height: 4px; background: rgba(255,255,255,.08); border-radius: 2px; overflow: hidden; }
     #warmup-bar { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; transition: width .3s ease; }
 
     /* ── Bottom gradient overlay ─────────────────────────────────────── */
@@ -107,15 +111,11 @@
     }
 
     /* Sentence strip */
-    #sentence-strip {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 16px; min-height: 38px;
-    }
+    #sentence-strip { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; min-height: 38px; }
     #sentence-text {
       flex: 1; font-size: 1.1rem; font-weight: 600;
       color: var(--primary); letter-spacing: .03em;
-      word-break: break-word; line-height: 1.4;
-      min-height: 1.4em;
+      word-break: break-word; line-height: 1.4; min-height: 1.4em;
     }
     #sentence-text:empty::before { content: 'Sentence will appear here…'; color: var(--muted); font-weight: 400; font-size: .9rem; }
     .ctrl-btn {
@@ -125,29 +125,19 @@
       transition: background .15s, color .15s;
     }
     .ctrl-btn:hover { background: rgba(255,255,255,.14); color: var(--primary); }
-    .ctrl-btn.speak {
-      background: rgba(76,175,130,.15); border-color: rgba(76,175,130,.35);
-      color: var(--accent);
-    }
+    .ctrl-btn.speak { background: rgba(76,175,130,.15); border-color: rgba(76,175,130,.35); color: var(--accent); }
     .ctrl-btn.speak:hover { background: rgba(76,175,130,.28); }
     .ctrl-btn.speak.speaking { animation: speakPulse 0.7s ease-in-out infinite alternate; }
     @keyframes speakPulse { from { opacity: 1; } to { opacity: 0.5; } }
 
-    /* Dwell strip */
-    .dwell-wrap {
-      height: 3px; background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden; margin-bottom: 6px;
-    }
-    #dwell-bar {
-      height: 100%; background: var(--accent); border-radius: 2px; width: 0%;
-      transition: width .25s linear;
-    }
+    /* Dwell bar */
+    .dwell-wrap { height: 3px; background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+    #dwell-bar { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; transition: width .25s linear; }
 
     /* Top prediction */
     .top-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
-    #top-label {
-      font-size: 2.6rem; font-weight: 800; letter-spacing: .02em;
-      color: var(--primary); transition: opacity .25s; line-height: 1;
-    }
+    #top-label { font-size: 2.6rem; font-weight: 800; letter-spacing: .02em; color: var(--primary); line-height: 1; }
+    #top-translated { font-size: 1rem; font-weight: 500; color: var(--muted); letter-spacing: .02em; min-height: 1.2em; margin-bottom: 4px; }
     #top-badge {
       background: var(--accent); color: #fff;
       font-size: 10px; font-weight: 700; letter-spacing: .08em;
@@ -176,7 +166,6 @@
     }
     #no-cam svg { opacity: .4; }
     #no-cam.visible { display: flex; }
-
     canvas#capture { display: none; }
   </style>
 </head>
@@ -189,6 +178,11 @@
     <span class="tagline">FSL Recognition &nbsp;·&nbsp; Saint Louis University, Baguio City</span>
   </div>
   <div class="spacer"></div>
+  <!-- Language toggle -->
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-lang-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn"        id="btn-lang-fil" onclick="setLang('fil')">FIL</button>
+  </div>
   <div class="live-pill"><div class="live-dot"></div> LIVE</div>
   <div class="tag">SignTransformer</div>
   <div class="tag">FSL-105</div>
@@ -206,7 +200,6 @@
   </div>
 
   <div id="overlay">
-
     <!-- Sentence strip -->
     <div id="sentence-strip">
       <div id="sentence-text"></div>
@@ -224,6 +217,7 @@
       <div id="top-badge" class="hidden">—</div>
       <div id="top-conf"></div>
     </div>
+    <div id="top-translated"></div>
     <div class="bar-wrap"><div class="bar-fill" id="top-bar" style="width:0%"></div></div>
 
     <!-- Runner-ups -->
@@ -237,8 +231,7 @@
       <div class="alt-bar-wrap"><div class="alt-bar-fill" id="alt2-bar" style="width:0%"></div></div>
       <div class="alt-conf" id="alt2-conf"></div>
     </div>
-
-  </div><!-- /overlay -->
+  </div>
 
   <div id="no-cam">
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -250,31 +243,80 @@
 </div>
 
 <script>
-  // ── Config ───────────────────────────────────────────────────────────
-  const MIN_FRAMES    = 30;
-  const POLL_MS       = 300;
-  const JPEG_Q        = 0.7;
-  const DWELL_FRAMES  = 10;       // polls at same label before commit (~3s)
-  const MIN_CONF      = 0.60;     // minimum confidence to start dwell
-  const COOLDOWN_MS   = 2000;     // block same word for this long after commit
+  // ── Config ────────────────────────────────────────────────────────────
+  const MIN_FRAMES   = 30;
+  const POLL_MS      = 300;
+  const JPEG_Q       = 0.7;
+  const DWELL_FRAMES = 10;    // polls held before commit (~3s)
+  const MIN_CONF     = 0.60;
+  const COOLDOWN_MS  = 2000;
 
-  // ── Keypoint layout ──────────────────────────────────────────────────
-  // pose[0..24], left_hand[25..45], right_hand[46..66], face[67..88]
+  // ── 105-label English → Filipino dictionary ───────────────────────────
+  const FIL = {
+    "GOOD MORNING":"Magandang umaga","GOOD AFTERNOON":"Magandang hapon",
+    "GOOD EVENING":"Magandang gabi","HELLO":"Kumusta","HOW ARE YOU":"Kamusta ka",
+    "IM FINE":"Mabuti naman ako","NICE TO MEET YOU":"Ikinagagalak kitang makilala",
+    "THANK YOU":"Salamat","YOURE WELCOME":"Walang anuman","SEE YOU TOMORROW":"Hanggang bukas",
+    "UNDERSTAND":"Naiintindihan","DON'T UNDERSTAND":"Hindi naiintindihan",
+    "KNOW":"Alam","DON'T KNOW":"Hindi ko alam","NO":"Hindi","YES":"Oo",
+    "WRONG":"Mali","CORRECT":"Tama","SLOW":"Mabagal","FAST":"Mabilis",
+    "ONE":"Isa","TWO":"Dalawa","THREE":"Tatlo","FOUR":"Apat","FIVE":"Lima",
+    "SIX":"Anim","SEVEN":"Pito","EIGHT":"Walo","NINE":"Siyam","TEN":"Sampu",
+    "JANUARY":"Enero","FEBRUARY":"Pebrero","MARCH":"Marso","APRIL":"Abril",
+    "MAY":"Mayo","JUNE":"Hunyo","JULY":"Hulyo","AUGUST":"Agosto",
+    "SEPTEMBER":"Setyembre","OCTOBER":"Oktubre","NOVEMBER":"Nobyembre","DECEMBER":"Disyembre",
+    "MONDAY":"Lunes","TUESDAY":"Martes","WEDNESDAY":"Miyerkules","THURSDAY":"Huwebes",
+    "FRIDAY":"Biyernes","SATURDAY":"Sabado","SUNDAY":"Linggo",
+    "TODAY":"Ngayon","TOMORROW":"Bukas","YESTERDAY":"Kahapon",
+    "FATHER":"Tatay","MOTHER":"Nanay","SON":"Anak na lalaki","DAUGHTER":"Anak na babae",
+    "GRANDFATHER":"Lolo","GRANDMOTHER":"Lola","UNCLE":"Tito","AUNTIE":"Tita",
+    "COUSIN":"Pinsan","PARENTS":"Magulang",
+    "BOY":"Batang lalaki","GIRL":"Batang babae","MAN":"Lalaki","WOMAN":"Babae",
+    "DEAF":"Bingi","HARD OF HEARING":"Mahirap marinig",
+    "WEELCHAIR PERSON":"Taong gumagamit ng wheelchair",
+    "BLIND":"Bulag","DEAF BLIND":"Bingi at bulag","MARRIED":"Kasal",
+    "BLUE":"Asul","GREEN":"Berde","RED":"Pula","BROWN":"Kayumanggi",
+    "BLACK":"Itim","WHITE":"Puti","YELLOW":"Dilaw","ORANGE":"Kahel",
+    "GRAY":"Kulay abo","PINK":"Rosas","VIOLET":"Lila","LIGHT":"Maliwanag","DARK":"Madilim",
+    "BREAD":"Tinapay","EGG":"Itlog","FISH":"Isda","MEAT":"Karne","CHICKEN":"Manok",
+    "SPAGHETTI":"Spaghetti","RICE":"Kanin","LONGANISA":"Longganisa","SHRIMP":"Hipon","CRAB":"Alimango",
+    "HOT":"Mainit","COLD":"Malamig","JUICE":"Juice","MILK":"Gatas",
+    "COFFEE":"Kape","TEA":"Tsaa","BEER":"Beer","WINE":"Alak",
+    "SUGAR":"Asukal","NO SUGAR":"Walang asukal",
+  };
+
+  function translate(label) {
+    return FIL[label] || label;
+  }
+
+  // ── Language state ────────────────────────────────────────────────────
+  let currentLang = 'en';
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.getElementById('btn-lang-en').classList.toggle('active',  lang === 'en');
+    document.getElementById('btn-lang-fil').classList.toggle('active', lang === 'fil');
+    // Re-render sentence in new language
+    renderSentence();
+    // Update translation hint under current prediction
+    const label = document.getElementById('top-label').textContent;
+    if (label && label !== '—') showTranslated(label);
+  }
+
+  function displayText(englishLabel) {
+    return currentLang === 'fil' ? (translate(englishLabel) || englishLabel) : englishLabel;
+  }
+
+  // ── Keypoint skeleton ─────────────────────────────────────────────────
   const HAND_CONNECTIONS = [
-    [0,1],[1,2],[2,3],[3,4],
-    [0,5],[5,6],[6,7],[7,8],
-    [0,9],[9,10],[10,11],[11,12],
-    [0,13],[13,14],[14,15],[15,16],
-    [0,17],[17,18],[18,19],[19,20],
-    [5,9],[9,13],[13,17],
+    [0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],
+    [0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],
+    [0,17],[17,18],[18,19],[19,20],[5,9],[9,13],[13,17],
   ];
   const POSE_CONNECTIONS = [
-    [11,13],[13,15],[12,14],[14,16],
-    [11,12],[11,23],[12,24],[23,24],
-    [0,11],[0,12],
+    [11,13],[13,15],[12,14],[14,16],[11,12],[11,23],[12,24],[23,24],[0,11],[0,12],
   ];
 
-  // ── DOM refs ─────────────────────────────────────────────────────────
   const cam        = document.getElementById('cam');
   const capture    = document.getElementById('capture');
   const skelCanvas = document.getElementById('skeleton');
@@ -285,6 +327,7 @@
   const warmupBar  = document.getElementById('warmup-bar');
   const noCam      = document.getElementById('no-cam');
   const topLabel   = document.getElementById('top-label');
+  const topTrans   = document.getElementById('top-translated');
   const topBadge   = document.getElementById('top-badge');
   const topConf    = document.getElementById('top-conf');
   const topBar     = document.getElementById('top-bar');
@@ -296,164 +339,161 @@
   const alt2Conf   = document.getElementById('alt2-conf');
   const dwellBar   = document.getElementById('dwell-bar');
   const sentenceEl = document.getElementById('sentence-text');
-  const btnDelete  = document.getElementById('btn-delete');
-  const btnClear   = document.getElementById('btn-clear');
-  const btnSpeak   = document.getElementById('btn-speak');
 
   // ── State ─────────────────────────────────────────────────────────────
   let polling      = false;
   let dwellLabel   = null;
   let dwellCount   = 0;
-  let cooldownUntil = 0;  // timestamp — block same-word repeat until this time
-  let words        = [];  // committed sentence words
+  let cooldownUntil = 0;
+  let words        = [];   // English labels (translate at render time)
 
-  // ── TTS ───────────────────────────────────────────────────────────────
-  // Load voices (Chrome loads them async)
-  let _voices = [];
-  function getVoices() {
-    if (_voices.length) return _voices;
-    _voices = speechSynthesis.getVoices();
-    return _voices;
+  // ── TTS via backend ───────────────────────────────────────────────────
+  let currentAudio = null;
+
+  async function speak(englishLabel) {
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    try {
+      const res = await fetch('/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: englishLabel, lang: currentLang }),
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      currentAudio = audio;
+      const btn = document.getElementById('btn-speak');
+      audio.onplay  = () => btn.classList.add('speaking');
+      audio.onended = () => { btn.classList.remove('speaking'); URL.revokeObjectURL(url); currentAudio = null; };
+      audio.play();
+    } catch (_) { /* network unavailable — silent fallback */ }
   }
-  speechSynthesis.onvoiceschanged = () => { _voices = speechSynthesis.getVoices(); };
 
-  function speak(text) {
-    if (!text) return;
-    speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(text);
-    const voices = getVoices();
-    const fil = voices.find(v => v.lang === 'fil-PH' || v.lang.startsWith('fil'));
-    utt.voice = fil || null;
-    utt.lang  = fil ? 'fil-PH' : 'en-US';
-    utt.rate  = 0.88;
-    utt.onstart = () => btnSpeak.classList.add('speaking');
-    utt.onend   = () => btnSpeak.classList.remove('speaking');
-    speechSynthesis.speak(utt);
+  async function speakSentence() {
+    if (words.length === 0) return;
+    // Speak each word in sequence
+    for (const w of words) {
+      await new Promise(resolve => {
+        fetch('/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: w, lang: currentLang }),
+        })
+        .then(r => r.blob())
+        .then(blob => {
+          const url   = URL.createObjectURL(blob);
+          const audio = new Audio(url);
+          currentAudio = audio;
+          audio.onended = () => { URL.revokeObjectURL(url); currentAudio = null; resolve(); };
+          audio.play();
+        })
+        .catch(resolve);
+      });
+    }
+    document.getElementById('btn-speak').classList.remove('speaking');
   }
 
   // ── Sentence controls ─────────────────────────────────────────────────
   function renderSentence() {
-    sentenceEl.textContent = words.join(' ');
+    sentenceEl.textContent = words.map(displayText).join(' ');
   }
 
   function commitWord(label) {
     words.push(label);
     renderSentence();
-    speak(label);  // speak each word as it's committed
+    speak(label);
   }
 
-  btnDelete.addEventListener('click', () => {
-    words.pop();
-    renderSentence();
+  document.getElementById('btn-delete').addEventListener('click', () => {
+    words.pop(); renderSentence();
   });
-
-  btnClear.addEventListener('click', () => {
-    words = [];
-    renderSentence();
-    speechSynthesis.cancel();
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    words = []; renderSentence();
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
   });
-
-  btnSpeak.addEventListener('click', () => {
-    speak(words.join(' '));
+  document.getElementById('btn-speak').addEventListener('click', () => {
+    document.getElementById('btn-speak').classList.add('speaking');
+    speakSentence();
   });
 
   // ── Dwell logic ───────────────────────────────────────────────────────
   function updateDwell(predictions, handsDetected) {
     if (!handsDetected || predictions.length === 0) {
-      dwellLabel = null; dwellCount = 0; dwellBar.style.width = '0%';
-      return;
+      dwellLabel = null; dwellCount = 0; dwellBar.style.width = '0%'; return;
     }
     const top = predictions[0];
     if (top.confidence < MIN_CONF) {
-      dwellLabel = null; dwellCount = 0; dwellBar.style.width = '0%';
-      return;
+      dwellLabel = null; dwellCount = 0; dwellBar.style.width = '0%'; return;
     }
-    if (top.label !== dwellLabel) {
-      dwellLabel = top.label; dwellCount = 1;
-    } else {
-      dwellCount++;
-    }
+    if (top.label !== dwellLabel) { dwellLabel = top.label; dwellCount = 1; }
+    else { dwellCount++; }
     dwellBar.style.width = Math.min(dwellCount / DWELL_FRAMES * 100, 100) + '%';
-
-    if (dwellCount >= DWELL_FRAMES) {
-      const now = Date.now();
-      if (now >= cooldownUntil) {
-        cooldownUntil = now + COOLDOWN_MS;
-        commitWord(dwellLabel);
-        dwellCount = 0;
-        dwellBar.style.width = '0%';
-      }
+    if (dwellCount >= DWELL_FRAMES && Date.now() >= cooldownUntil) {
+      cooldownUntil = Date.now() + COOLDOWN_MS;
+      commitWord(dwellLabel);
+      dwellCount = 0; dwellBar.style.width = '0%';
     }
   }
 
   // ── Skeleton drawing ──────────────────────────────────────────────────
   function coverTransform() {
-    const cw = skelCanvas.width,  ch = skelCanvas.height;
-    const vw = cam.videoWidth  || cw;
-    const vh = cam.videoHeight || ch;
+    const cw = skelCanvas.width, ch = skelCanvas.height;
+    const vw = cam.videoWidth || cw, vh = cam.videoHeight || ch;
     const scale = Math.max(cw / vw, ch / vh);
     const dw = vw * scale, dh = vh * scale;
     return { offX: (cw - dw) / 2, offY: (ch - dh) / 2, dw, dh };
   }
-
-  function kpXY(landmarks, mask, kpIdx, tf) {
-    if (!mask[kpIdx]) return null;
-    return {
-      x: tf.offX + landmarks[kpIdx * 2]     * tf.dw,
-      y: tf.offY + landmarks[kpIdx * 2 + 1] * tf.dh,
-    };
+  function kpXY(lm, mask, i, tf) {
+    if (!mask[i]) return null;
+    return { x: tf.offX + lm[i*2]*tf.dw, y: tf.offY + lm[i*2+1]*tf.dh };
   }
-
-  function drawConnections(landmarks, mask, connections, kpOffset, color, lineWidth, tf) {
-    skelCtx.strokeStyle = color; skelCtx.lineWidth = lineWidth; skelCtx.lineCap = 'round';
-    for (const [a, b] of connections) {
-      const pa = kpXY(landmarks, mask, kpOffset + a, tf);
-      const pb = kpXY(landmarks, mask, kpOffset + b, tf);
+  function drawConns(lm, mask, conns, off, color, lw, tf) {
+    skelCtx.strokeStyle = color; skelCtx.lineWidth = lw; skelCtx.lineCap = 'round';
+    for (const [a,b] of conns) {
+      const pa = kpXY(lm, mask, off+a, tf), pb = kpXY(lm, mask, off+b, tf);
       if (!pa || !pb) continue;
       skelCtx.beginPath(); skelCtx.moveTo(pa.x, pa.y); skelCtx.lineTo(pb.x, pb.y); skelCtx.stroke();
     }
   }
-
-  function drawDots(landmarks, mask, kpOffset, count, color, radius, tf) {
+  function drawDots(lm, mask, off, n, color, r, tf) {
     skelCtx.fillStyle = color;
-    for (let i = 0; i < count; i++) {
-      const p = kpXY(landmarks, mask, kpOffset + i, tf);
-      if (!p) continue;
-      skelCtx.beginPath(); skelCtx.arc(p.x, p.y, radius, 0, Math.PI * 2); skelCtx.fill();
+    for (let i=0; i<n; i++) {
+      const p = kpXY(lm, mask, off+i, tf); if (!p) continue;
+      skelCtx.beginPath(); skelCtx.arc(p.x, p.y, r, 0, Math.PI*2); skelCtx.fill();
     }
   }
-
-  function drawSkeleton(landmarks, mask) {
-    skelCanvas.width  = skelCanvas.offsetWidth;
-    skelCanvas.height = skelCanvas.offsetHeight;
+  function drawSkeleton(lm, mask) {
+    skelCanvas.width = skelCanvas.offsetWidth; skelCanvas.height = skelCanvas.offsetHeight;
     skelCtx.clearRect(0, 0, skelCanvas.width, skelCanvas.height);
     const tf = coverTransform();
-    drawConnections(landmarks, mask, POSE_CONNECTIONS, 0,  'rgba(148,137,121,0.55)', 2, tf);
-    drawDots       (landmarks, mask, 0,  25, 'rgba(148,137,121,0.7)',  3, tf);
-    drawConnections(landmarks, mask, HAND_CONNECTIONS, 25, 'rgba(76,175,130,0.85)',  2, tf);
-    drawDots       (landmarks, mask, 25, 21, '#4caf82',                4, tf);
-    drawConnections(landmarks, mask, HAND_CONNECTIONS, 46, 'rgba(223,208,184,0.85)', 2, tf);
-    drawDots       (landmarks, mask, 46, 21, '#DFD0B8',                4, tf);
-    drawDots       (landmarks, mask, 67, 22, 'rgba(148,137,121,0.5)',  2, tf);
+    drawConns(lm, mask, POSE_CONNECTIONS, 0,  'rgba(148,137,121,0.55)', 2, tf);
+    drawDots (lm, mask, 0,  25, 'rgba(148,137,121,0.7)',   3, tf);
+    drawConns(lm, mask, HAND_CONNECTIONS, 25, 'rgba(76,175,130,0.85)',  2, tf);
+    drawDots (lm, mask, 25, 21, '#4caf82',                 4, tf);
+    drawConns(lm, mask, HAND_CONNECTIONS, 46, 'rgba(223,208,184,0.85)', 2, tf);
+    drawDots (lm, mask, 46, 21, '#DFD0B8',                 4, tf);
+    drawDots (lm, mask, 67, 22, 'rgba(148,137,121,0.5)',   2, tf);
   }
 
-  // ── UI update ─────────────────────────────────────────────────────────
+  // ── UI helpers ────────────────────────────────────────────────────────
   function pct(v) { return Math.round(v * 100); }
+
+  function showTranslated(label) {
+    topTrans.textContent = currentLang === 'fil' ? (translate(label) || '') : '';
+  }
 
   function clearPredictions() {
     topLabel.textContent = '—'; topBadge.classList.add('hidden');
-    topConf.textContent = ''; topBar.style.width = '0%';
+    topConf.textContent = ''; topBar.style.width = '0%'; topTrans.textContent = '';
     alt1Label.textContent = '—'; alt1Bar.style.width = '0%'; alt1Conf.textContent = '';
     alt2Label.textContent = '—'; alt2Bar.style.width = '0%'; alt2Conf.textContent = '';
   }
 
   function updateUI(data) {
     const { predictions, buffered_frames, hands_detected, landmarks, landmark_mask } = data;
-
     warmupBar.style.width = Math.min(buffered_frames / MIN_FRAMES, 1) * 100 + '%';
-
     if (landmarks && landmark_mask) drawSkeleton(landmarks, landmark_mask);
-
     updateDwell(predictions, hands_detected);
 
     if (!hands_detected) {
@@ -464,16 +504,16 @@
       warmupTxt.textContent = `Warming up — ${buffered_frames}/${MIN_FRAMES} frames…`;
       clearPredictions(); return;
     }
-
     warmupEl.classList.add('hidden');
 
     const [p0, p1, p2] = predictions;
     topLabel.textContent = p0.label;
+    showTranslated(p0.label);
     topBadge.textContent = p0.category; topBadge.classList.remove('hidden');
     topConf.textContent  = pct(p0.confidence) + '%';
     topBar.style.width   = pct(p0.confidence) + '%';
-    if (p1) { alt1Label.textContent = p1.label; alt1Conf.textContent = pct(p1.confidence)+'%'; alt1Bar.style.width = pct(p1.confidence)+'%'; }
-    if (p2) { alt2Label.textContent = p2.label; alt2Conf.textContent = pct(p2.confidence)+'%'; alt2Bar.style.width = pct(p2.confidence)+'%'; }
+    if (p1) { alt1Label.textContent = displayText(p1.label); alt1Conf.textContent = pct(p1.confidence)+'%'; alt1Bar.style.width = pct(p1.confidence)+'%'; }
+    if (p2) { alt2Label.textContent = displayText(p2.label); alt2Conf.textContent = pct(p2.confidence)+'%'; alt2Bar.style.width = pct(p2.confidence)+'%'; }
   }
 
   // ── Poll ──────────────────────────────────────────────────────────────
@@ -487,7 +527,7 @@
         body: JSON.stringify({ frame }),
       });
       if (res.ok) updateUI(await res.json());
-    } catch (_) { /* network blip */ } finally { polling = false; }
+    } catch (_) { } finally { polling = false; }
   }
 
   // ── Camera init ───────────────────────────────────────────────────────
