@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
   <meta charset="UTF-8" />
+  <meta name="google" content="notranslate" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sikap-Salita — FSL Live Demo</title>
   <style>
@@ -245,9 +246,9 @@
 <script>
   // ── Config ────────────────────────────────────────────────────────────
   const MIN_FRAMES   = 30;
-  const POLL_MS      = 300;
+  const POLL_MS      = 150;   // inference cadence — MediaPipe ~20ms so 150ms is safe
   const JPEG_Q       = 0.7;
-  const DWELL_FRAMES = 10;    // polls held before commit (~3s)
+  const DWELL_FRAMES = 20;    // polls held before commit (~3s at 150ms each)
   const MIN_CONF     = 0.60;
   const COOLDOWN_MS  = 2000;
 
@@ -341,11 +342,12 @@
   const sentenceEl = document.getElementById('sentence-text');
 
   // ── State ─────────────────────────────────────────────────────────────
-  let polling      = false;
-  let dwellLabel   = null;
-  let dwellCount   = 0;
+  let polling       = false;
+  let dwellLabel    = null;
+  let dwellCount    = 0;
   let cooldownUntil = 0;
-  let words        = [];   // English labels (translate at render time)
+  let words         = [];   // English labels (translate at render time)
+
 
   // ── TTS via backend ───────────────────────────────────────────────────
   let currentAudio = null;
@@ -529,6 +531,13 @@
       if (res.ok) updateUI(await res.json());
     } catch (_) { } finally { polling = false; }
   }
+
+  // ── Skeleton render loop (30fps via rAF, independent of poll cadence) ──
+  function renderLoop() {
+    if (lastLandmarks && lastMask) drawSkeleton(lastLandmarks, lastMask);
+    requestAnimationFrame(renderLoop);
+  }
+  requestAnimationFrame(renderLoop);
 
   // ── Camera init ───────────────────────────────────────────────────────
   async function startCamera() {
