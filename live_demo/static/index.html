@@ -168,6 +168,206 @@
     #no-cam svg { opacity: .4; }
     #no-cam.visible { display: flex; }
     canvas#capture { display: none; }
+
+    /* ── Info button ────────────────────────────────────────────────── */
+    .info-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+      display: grid; place-items: center; cursor: pointer;
+      color: var(--muted); font-size: 15px; font-weight: 700;
+      font-family: Georgia, 'Times New Roman', serif; font-style: italic;
+      transition: background .15s, color .15s;
+      flex-shrink: 0;
+    }
+    .info-btn:hover { background: rgba(255,255,255,.14); color: var(--primary); }
+
+    /* ── Info Panel Overlay ─────────────────────────────────────────── */
+    #info-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      z-index: 900; opacity: 0; pointer-events: none;
+      transition: opacity .3s;
+    }
+    #info-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    #info-panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(520px, 92vw);
+      background: var(--bg); border-left: 1px solid rgba(255,255,255,.08);
+      z-index: 901; overflow-y: auto; overflow-x: hidden;
+      transform: translateX(100%); transition: transform .35s cubic-bezier(.4,0,.2,1);
+      scrollbar-width: thin; scrollbar-color: var(--surface) transparent;
+    }
+    #info-panel.open { transform: translateX(0); }
+
+    /* panel internals */
+    .ip-header {
+      position: sticky; top: 0; z-index: 2;
+      background: var(--surface); border-bottom: 1px solid rgba(255,255,255,.06);
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px;
+    }
+    .ip-header h2 { font-size: 15px; font-weight: 700; letter-spacing: .06em; color: var(--primary); flex: 1; }
+    .ip-close {
+      width: 28px; height: 28px; border-radius: 6px; border: none;
+      background: rgba(255,255,255,.07); color: var(--muted);
+      font-size: 16px; cursor: pointer; display: grid; place-items: center;
+      transition: background .15s;
+    }
+    .ip-close:hover { background: rgba(255,255,255,.15); color: var(--primary); }
+
+    .ip-body { padding: 20px; display: flex; flex-direction: column; gap: 24px; }
+
+    /* Section titles */
+    .ip-section-title {
+      font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 10px;
+    }
+
+    /* Cards */
+    .ip-card {
+      background: var(--surface); border-radius: 10px; padding: 16px;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    .ip-card-title {
+      font-size: 13px; font-weight: 700; color: var(--primary);
+      margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+    }
+    .ip-card-title .icon {
+      width: 22px; height: 22px; border-radius: 5px;
+      display: grid; place-items: center; font-size: 11px;
+      flex-shrink: 0;
+    }
+    .ip-card p, .ip-card li {
+      font-size: 12px; color: var(--muted); line-height: 1.6;
+    }
+    .ip-card ul { padding-left: 16px; }
+
+    /* Stat grid */
+    .ip-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    }
+    .ip-stat {
+      background: var(--bg); border: 1px solid rgba(255,255,255,.06);
+      border-radius: 8px; padding: 10px 12px; text-align: center;
+    }
+    .ip-stat .val {
+      font-size: 20px; font-weight: 800; color: var(--primary); line-height: 1.2;
+    }
+    .ip-stat .lbl {
+      font-size: 9px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); margin-top: 2px;
+    }
+
+    /* Pipeline visual */
+    .ip-pipeline {
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .ip-pipe-step {
+      display: flex; align-items: flex-start; gap: 12px; position: relative;
+      padding: 10px 0;
+    }
+    .ip-pipe-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      font-size: 12px; font-weight: 800;
+      display: grid; place-items: center; flex-shrink: 0;
+      position: relative; z-index: 1;
+    }
+    .ip-pipe-step:not(:last-child)::before {
+      content: ''; position: absolute; left: 13.5px; top: 38px; bottom: -10px;
+      width: 1px; background: rgba(76,175,130,.3);
+    }
+    .ip-pipe-content { flex: 1; }
+    .ip-pipe-name {
+      font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 2px;
+    }
+    .ip-pipe-tech {
+      font-size: 10px; font-weight: 600; color: var(--accent);
+      background: rgba(76,175,130,.1); border: 1px solid rgba(76,175,130,.2);
+      border-radius: 4px; padding: 1px 6px; display: inline-block; margin-bottom: 3px;
+    }
+    .ip-pipe-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+    /* Model comparison */
+    .ip-model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ip-model-card {
+      background: var(--bg); border: 1px solid rgba(255,255,255,.06);
+      border-radius: 8px; padding: 12px; position: relative; overflow: hidden;
+    }
+    .ip-model-card.recommended::after {
+      content: 'PRIMARY'; position: absolute; top: 8px; right: -22px;
+      background: var(--accent); color: #fff; font-size: 8px; font-weight: 800;
+      letter-spacing: .08em; padding: 2px 28px;
+      transform: rotate(35deg);
+    }
+    .ip-model-name { font-size: 13px; font-weight: 800; color: var(--primary); margin-bottom: 6px; }
+    .ip-model-row { display: flex; justify-content: space-between; font-size: 11px; padding: 3px 0; }
+    .ip-model-row .k { color: var(--muted); }
+    .ip-model-row .v { color: var(--primary); font-weight: 600; }
+    .ip-model-divider { height: 1px; background: rgba(255,255,255,.06); margin: 4px 0; }
+
+    /* Dictionary table */
+    .ip-dict-group {
+      margin-bottom: 12px;
+    }
+    .ip-dict-cat {
+      font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--accent); padding: 4px 0; margin-bottom: 4px;
+      border-bottom: 1px solid rgba(76,175,130,.2);
+    }
+    .ip-dict-table {
+      width: 100%; border-collapse: collapse;
+    }
+    .ip-dict-table td {
+      font-size: 11px; padding: 3px 8px 3px 0; vertical-align: top;
+    }
+    .ip-dict-table td:first-child {
+      color: var(--primary); font-weight: 600; width: 45%; white-space: nowrap;
+    }
+    .ip-dict-table td:last-child { color: var(--muted); }
+
+    /* Augmentation table */
+    .ip-aug-table {
+      width: 100%; border-collapse: collapse;
+    }
+    .ip-aug-table th {
+      font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--accent); text-align: left; padding: 6px 8px;
+      border-bottom: 1px solid rgba(76,175,130,.2);
+    }
+    .ip-aug-table td {
+      font-size: 11px; padding: 5px 8px; color: var(--muted);
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .ip-aug-table td:first-child { color: var(--primary); font-weight: 600; }
+    .ip-aug-table td:last-child { text-align: center; font-weight: 600; color: var(--accent); }
+
+    /* Team grid */
+    .ip-team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .ip-team-member {
+      background: var(--bg); border: 1px solid rgba(255,255,255,.06);
+      border-radius: 8px; padding: 10px 12px;
+    }
+    .ip-team-member .name { font-size: 12px; font-weight: 700; color: var(--primary); }
+    .ip-team-member .email { font-size: 10px; color: var(--muted); word-break: break-all; }
+
+    /* Eval targets */
+    .ip-eval-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .ip-eval-item {
+      background: var(--bg); border: 1px solid rgba(255,255,255,.06);
+      border-radius: 8px; padding: 10px 12px;
+    }
+    .ip-eval-item .metric { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+    .ip-eval-item .target { font-size: 16px; font-weight: 800; color: var(--primary); }
+
+    /* SDG badges */
+    .ip-sdg-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .ip-sdg {
+      background: var(--bg); border: 1px solid rgba(255,255,255,.06);
+      border-radius: 6px; padding: 6px 10px; font-size: 11px;
+      color: var(--primary); font-weight: 600;
+    }
+    .ip-sdg .num { color: var(--accent); font-weight: 800; margin-right: 4px; }
   </style>
 </head>
 <body>
@@ -185,9 +385,419 @@
     <button class="lang-btn"        id="btn-lang-fil" onclick="setLang('fil')">FIL</button>
   </div>
   <div class="live-pill"><div class="live-dot"></div> LIVE</div>
-  <div class="tag">SignTransformer</div>
+  <div class="tag">Siformer</div>
   <div class="tag">FSL-105</div>
+  <button class="info-btn" onclick="toggleInfo()" title="System Information">i</button>
 </header>
+
+<!-- Info Panel -->
+<div id="info-backdrop" onclick="toggleInfo()"></div>
+<div id="info-panel">
+  <div class="ip-header">
+    <h2>SYSTEM INFORMATION</h2>
+    <button class="ip-close" onclick="toggleInfo()">✕</button>
+  </div>
+  <div class="ip-body">
+
+    <!-- Project Overview -->
+    <div>
+      <div class="ip-section-title">About</div>
+      <div class="ip-card">
+        <div class="ip-card-title">Sikap-Salita</div>
+        <p>A General-Purpose Filipino Sign Language (FSL) to Text-to-Speech Communicator. Developed at Saint Louis University, Baguio City, Philippines.</p>
+        <div style="margin-top:10px">
+          <div class="ip-sdg-row">
+            <div class="ip-sdg"><span class="num">SDG 4</span> Quality Education</div>
+            <div class="ip-sdg"><span class="num">SDG 10</span> Reduced Inequalities</div>
+            <div class="ip-sdg"><span class="num">SDG 11</span> Sustainable Cities</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dataset -->
+    <div>
+      <div class="ip-section-title">Dataset</div>
+      <div class="ip-card">
+        <div class="ip-card-title">FSL-105 Dataset</div>
+        <p style="margin-bottom:10px">The only publicly available labeled FSL video dataset (Mendeley Data, CC-BY 4.0). Captured by a single adult deaf FSL signer, reviewed by an FSL expert.</p>
+        <div class="ip-stats">
+          <div class="ip-stat"><div class="val">105</div><div class="lbl">Signs</div></div>
+          <div class="ip-stat"><div class="val">2,130</div><div class="lbl">Video Clips</div></div>
+          <div class="ip-stat"><div class="val">10</div><div class="lbl">Categories</div></div>
+          <div class="ip-stat"><div class="val">~4s</div><div class="lbl">Clip Length</div></div>
+          <div class="ip-stat"><div class="val">640×360</div><div class="lbl">Resolution</div></div>
+          <div class="ip-stat"><div class="val">80/20</div><div class="lbl">Train/Test</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architecture Pipeline -->
+    <div>
+      <div class="ip-section-title">System Architecture</div>
+      <div class="ip-card">
+        <div class="ip-pipeline">
+          <div class="ip-pipe-step">
+            <div class="ip-pipe-num">1</div>
+            <div class="ip-pipe-content">
+              <div class="ip-pipe-name">Pose Reader</div>
+              <span class="ip-pipe-tech">MediaPipe Holistic · GPU</span>
+              <div class="ip-pipe-desc">Extracts 75 landmarks per frame (21 left hand + 21 right hand + 33 upper body pose), producing 225 values per frame. Real-time pose estimation without raw pixel processing.</div>
+            </div>
+          </div>
+          <div class="ip-pipe-step">
+            <div class="ip-pipe-num">2</div>
+            <div class="ip-pipe-content">
+              <div class="ip-pipe-name">Sign Reader</div>
+              <span class="ip-pipe-tech">Bi-LSTM / Siformer · GPU</span>
+              <div class="ip-pipe-desc">Receives a normalized 64-frame × 225-value sequence and outputs a predicted sign label with confidence score. Controlled comparison between baseline and advanced architecture.</div>
+            </div>
+          </div>
+          <div class="ip-pipe-step">
+            <div class="ip-pipe-num">3</div>
+            <div class="ip-pipe-content">
+              <div class="ip-pipe-name">Translator</div>
+              <span class="ip-pipe-tech">Facebook NLLB-200 (600M) · CPU</span>
+              <div class="ip-pipe-desc">Translates English sign labels to Filipino (tgl_Latn). Hand-curated override dictionary covers all 105 FSL-105 labels; NLLB-200 serves as fallback for unseen text.</div>
+            </div>
+          </div>
+          <div class="ip-pipe-step">
+            <div class="ip-pipe-num">4</div>
+            <div class="ip-pipe-content">
+              <div class="ip-pipe-name">Speaker</div>
+              <span class="ip-pipe-tech">Qwen3-TTS 0.6B · GPU</span>
+              <div class="ip-pipe-desc">Neural text-to-speech at 24kHz. Converts recognized and translated text into spoken audio. Fits within 8GB VRAM alongside other pipeline components.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recognition Models -->
+    <div>
+      <div class="ip-section-title">Recognition Models</div>
+      <div class="ip-model-grid">
+        <div class="ip-model-card">
+          <div class="ip-model-name">Bi-LSTM</div>
+          <div class="ip-model-row"><span class="k">Role</span><span class="v">Baseline</span></div>
+          <div class="ip-model-divider"></div>
+          <div class="ip-model-row"><span class="k">Layers</span><span class="v">2× Bi-LSTM</span></div>
+          <div class="ip-model-row"><span class="k">Hidden</span><span class="v">256 units</span></div>
+          <div class="ip-model-row"><span class="k">Dropout</span><span class="v">30%</span></div>
+          <div class="ip-model-row"><span class="k">Pooling</span><span class="v">Attention</span></div>
+          <div class="ip-model-row"><span class="k">Dense</span><span class="v">512 units</span></div>
+          <div class="ip-model-row"><span class="k">Params</span><span class="v">~2–3M</span></div>
+          <div class="ip-model-divider"></div>
+          <div class="ip-model-row"><span class="k">Optimizer</span><span class="v">AdamW</span></div>
+          <div class="ip-model-row"><span class="k">LR</span><span class="v">0.001</span></div>
+          <div class="ip-model-row"><span class="k">Batch</span><span class="v">32</span></div>
+          <div class="ip-model-row"><span class="k">Epochs</span><span class="v">100</span></div>
+          <div class="ip-model-row"><span class="k">Patience</span><span class="v">15</span></div>
+        </div>
+        <div class="ip-model-card recommended">
+          <div class="ip-model-name">Siformer</div>
+          <div class="ip-model-row"><span class="k">Role</span><span class="v">Advanced</span></div>
+          <div class="ip-model-divider"></div>
+          <div class="ip-model-row"><span class="k">Design</span><span class="v">Feature-isolated</span></div>
+          <div class="ip-model-row"><span class="k">Streams</span><span class="v">L-Hand / R-Hand / Body</span></div>
+          <div class="ip-model-row"><span class="k">Features</span><span class="v">Kinematic HPR</span></div>
+          <div class="ip-model-row"><span class="k">Inference</span><span class="v">Input-adaptive</span></div>
+          <div class="ip-model-row"><span class="k">Params</span><span class="v">~5–10M</span></div>
+          <div class="ip-model-row"><span class="k">Benchmark</span><span class="v">86.50% WLASL100</span></div>
+          <div class="ip-model-divider"></div>
+          <div class="ip-model-row"><span class="k">Optimizer</span><span class="v">AdamW</span></div>
+          <div class="ip-model-row"><span class="k">LR</span><span class="v">0.0005</span></div>
+          <div class="ip-model-row"><span class="k">Batch</span><span class="v">16</span></div>
+          <div class="ip-model-row"><span class="k">Epochs</span><span class="v">150</span></div>
+          <div class="ip-model-row"><span class="k">Patience</span><span class="v">20</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preprocessing -->
+    <div>
+      <div class="ip-section-title">Data Preprocessing</div>
+      <div class="ip-card" style="margin-bottom:10px">
+        <div class="ip-card-title">Landmark Extraction</div>
+        <p>Each video clip (~120 frames at 30fps) processed through MediaPipe Holistic. Outputs 75 landmarks per frame (21 left hand + 21 right hand + 33 upper body). Face landmarks (478 points) excluded to reduce noise. Missing hands forward-filled from last detection with confidence mask.</p>
+      </div>
+      <div class="ip-card" style="margin-bottom:10px">
+        <div class="ip-card-title">Normalization</div>
+        <ul>
+          <li><strong>Re-centering:</strong> Mid-chest point subtracted from all landmarks (torso-relative)</li>
+          <li><strong>Shoulder-width scaling:</strong> All coordinates divided by shoulder distance</li>
+          <li><strong>Temporal resampling:</strong> All clips resampled to 64 frames via linear interpolation</li>
+        </ul>
+      </div>
+      <div class="ip-card">
+        <div class="ip-card-title">Data Augmentation</div>
+        <p style="margin-bottom:8px">Applied on-the-fly during training to compensate for small dataset (~20 clips/sign):</p>
+        <table class="ip-aug-table">
+          <thead><tr><th>Augmentation</th><th>Description</th><th>Prob.</th></tr></thead>
+          <tbody>
+            <tr><td>Time Warp</td><td>Speeds up / slows random portions</td><td>50%</td></tr>
+            <tr><td>Gaussian Noise</td><td>Random jitter simulating detection wobble</td><td>50%</td></tr>
+            <tr><td>Horizontal Mirror</td><td>Swaps left/right hand landmarks</td><td>50%</td></tr>
+            <tr><td>Scale Jitter</td><td>Scales pose 0.85×–1.15×</td><td>30%</td></tr>
+            <tr><td>Frame Drop</td><td>Removes 1-3 frames, re-interpolates</td><td>30%</td></tr>
+            <tr><td>Spatial Shift</td><td>Shifts landmarks in x/y plane</td><td>30%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TTS & Translation -->
+    <div>
+      <div class="ip-section-title">Text-to-Speech & Translation</div>
+      <div class="ip-model-grid">
+        <div class="ip-model-card">
+          <div class="ip-model-name">NLLB-200</div>
+          <div class="ip-model-row"><span class="k">Variant</span><span class="v">600M Distilled</span></div>
+          <div class="ip-model-row"><span class="k">Source</span><span class="v">Facebook/Meta</span></div>
+          <div class="ip-model-row"><span class="k">Languages</span><span class="v">200+</span></div>
+          <div class="ip-model-row"><span class="k">Target</span><span class="v">tgl_Latn (Filipino)</span></div>
+          <div class="ip-model-row"><span class="k">Compute</span><span class="v">CPU</span></div>
+          <div class="ip-model-divider"></div>
+          <div class="ip-model-row"><span class="k">Fallback</span><span class="v">Hand-curated dict</span></div>
+        </div>
+        <div class="ip-model-card">
+          <div class="ip-model-name">Qwen3-TTS</div>
+          <div class="ip-model-row"><span class="k">Size</span><span class="v">0.6B params</span></div>
+          <div class="ip-model-row"><span class="k">Sample Rate</span><span class="v">24kHz</span></div>
+          <div class="ip-model-row"><span class="k">Type</span><span class="v">Neural TTS</span></div>
+          <div class="ip-model-row"><span class="k">Compute</span><span class="v">GPU</span></div>
+          <div class="ip-model-divider"></div>
+          <div class="ip-model-row"><span class="k">VRAM</span><span class="v">Fits in 8GB</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Training -->
+    <div>
+      <div class="ip-section-title">Training Environment</div>
+      <div class="ip-card">
+        <div class="ip-stats">
+          <div class="ip-stat"><div class="val" style="font-size:14px">RTX 5060</div><div class="lbl">GPU</div></div>
+          <div class="ip-stat"><div class="val">8GB</div><div class="lbl">VRAM</div></div>
+          <div class="ip-stat"><div class="val" style="font-size:14px">PyTorch</div><div class="lbl">Framework</div></div>
+        </div>
+        <div style="margin-top:10px">
+          <div class="ip-model-row"><span class="k">Bi-LSTM Est. Time</span><span class="v">20–30 min</span></div>
+          <div class="ip-model-row"><span class="k">Siformer Est. Time</span><span class="v">1–2 hours</span></div>
+          <div class="ip-model-row"><span class="k">Full Pipeline</span><span class="v">6–10 hours</span></div>
+          <div class="ip-model-row"><span class="k">Cross-Validation</span><span class="v">5-fold</span></div>
+          <div class="ip-model-row"><span class="k">Loss</span><span class="v">Cross-entropy + label smoothing (0.1)</span></div>
+          <div class="ip-model-row"><span class="k">Scheduler</span><span class="v">Cosine warmup + decay</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Evaluation Targets -->
+    <div>
+      <div class="ip-section-title">Evaluation Targets</div>
+      <div class="ip-eval-grid">
+        <div class="ip-eval-item"><div class="metric">Recognition Metrics</div><div class="target">Top-1, Top-5, Macro F1</div></div>
+        <div class="ip-eval-item"><div class="metric">Cross-Validation</div><div class="target">5-Fold</div></div>
+        <div class="ip-eval-item"><div class="metric">TTS Latency Target</div><div class="target">&lt; 2 seconds</div></div>
+        <div class="ip-eval-item"><div class="metric">Frame Rate Target</div><div class="target">25+ FPS</div></div>
+        <div class="ip-eval-item"><div class="metric">TTS Quality</div><div class="target">MOS (1–5 scale)</div></div>
+        <div class="ip-eval-item"><div class="metric">Additional</div><div class="target">Confusion Matrix, Per-Category Acc</div></div>
+      </div>
+    </div>
+
+    <!-- Sign Dictionary -->
+    <div>
+      <div class="ip-section-title">Sign Dictionary (105 Signs)</div>
+      <div class="ip-card">
+
+        <div class="ip-dict-group">
+          <div class="ip-dict-cat">Greeting (10)</div>
+          <table class="ip-dict-table">
+            <tr><td>GOOD MORNING</td><td>Magandang umaga</td></tr>
+            <tr><td>GOOD AFTERNOON</td><td>Magandang hapon</td></tr>
+            <tr><td>GOOD EVENING</td><td>Magandang gabi</td></tr>
+            <tr><td>HELLO</td><td>Kumusta</td></tr>
+            <tr><td>HOW ARE YOU</td><td>Kamusta ka</td></tr>
+            <tr><td>IM FINE</td><td>Mabuti naman ako</td></tr>
+            <tr><td>NICE TO MEET YOU</td><td>Ikinagagalak kitang makilala</td></tr>
+            <tr><td>THANK YOU</td><td>Salamat</td></tr>
+            <tr><td>YOURE WELCOME</td><td>Walang anuman</td></tr>
+            <tr><td>SEE YOU TOMORROW</td><td>Hanggang bukas</td></tr>
+          </table>
+        </div>
+
+        <div class="ip-dict-group">
+          <div class="ip-dict-cat">Survival (10)</div>
+          <table class="ip-dict-table">
+            <tr><td>UNDERSTAND</td><td>Naiintindihan</td></tr>
+            <tr><td>DON'T UNDERSTAND</td><td>Hindi naiintindihan</td></tr>
+            <tr><td>KNOW</td><td>Alam</td></tr>
+            <tr><td>DON'T KNOW</td><td>Hindi ko alam</td></tr>
+            <tr><td>NO</td><td>Hindi</td></tr>
+            <tr><td>YES</td><td>Oo</td></tr>
+            <tr><td>WRONG</td><td>Mali</td></tr>
+            <tr><td>CORRECT</td><td>Tama</td></tr>
+            <tr><td>SLOW</td><td>Mabagal</td></tr>
+            <tr><td>FAST</td><td>Mabilis</td></tr>
+          </table>
+        </div>
+
+        <div class="ip-dict-group">
+          <div class="ip-dict-cat">Number (10)</div>
+          <table class="ip-dict-table">
+            <tr><td>ONE</td><td>Isa</td></tr>
+            <tr><td>TWO</td><td>Dalawa</td></tr>
+            <tr><td>THREE</td><td>Tatlo</td></tr>
+            <tr><td>FOUR</td><td>Apat</td></tr>
+            <tr><td>FIVE</td><td>Lima</td></tr>
+            <tr><td>SIX</td><td>Anim</td></tr>
+            <tr><td>SEVEN</td><td>Pito</td></tr>
+            <tr><td>EIGHT</td><td>Walo</td></tr>
+            <tr><td>NINE</td><td>Siyam</td></tr>
+            <tr><td>TEN</td><td>Sampu</td></tr>
+          </table>
+        </div>
+
+        <div class="ip-dict-group">
+          <div class="ip-dict-cat">Calendar (12)</div>
+          <table class="ip-dict-table">
+            <tr><td>JANUARY</td><td>Enero</td></tr>
+            <tr><td>FEBRUARY</td><td>Pebrero</td></tr>
+            <tr><td>MARCH</td><td>Marso</td></tr>
+            <tr><td>APRIL</td><td>Abril</td></tr>
+            <tr><td>MAY</td><td>Mayo</td></tr>
+            <tr><td>JUNE</td><td>Hunyo</td></tr>
+            <tr><td>JULY</td><td>Hulyo</td></tr>
+            <tr><td>AUGUST</td><td>Agosto</td></tr>
+            <tr><td>SEPTEMBER</td><td>Setyembre</td></tr>
+            <tr><td>OCTOBER</td><td>Oktubre</td></tr>
+            <tr><td>NOVEMBER</td><td>Nobyembre</td></tr>
+            <tr><td>DECEMBER</td><td>Disyembre</td></tr>
+          </table>
+        </div>
+
+        <div class="ip-dict-group">
+          <div class="ip-dict-cat">Days (10)</div>
+          <table class="ip-dict-table">
+            <tr><td>MONDAY</td><td>Lunes</td></tr>
+            <tr><td>TUESDAY</td><td>Martes</td></tr>
+            <tr><td>WEDNESDAY</td><td>Miyerkules</td></tr>
+            <tr><td>THURSDAY</td><td>Huwebes</td></tr>
+            <tr><td>FRIDAY</td><td>Biyernes</td></tr>
+            <tr><td>SATURDAY</td><td>Sabado</td></tr>
+            <tr><td>SUNDAY</td><td>Linggo</td></tr>
+            <tr><td>TODAY</td><td>Ngayon</td></tr>
+            <tr><td>TOMORROW</td><td>Bukas</td></tr>
+            <tr><td>YESTERDAY</td><td>Kahapon</td></tr>
+          </table>
+        </div>
+
+        <div class="ip-dict-group">
+          <div class="ip-dict-cat">Family (10)</div>
+          <table class="ip-dict-table">
+            <tr><td>FATHER</td><td>Tatay</td></tr>
+            <tr><td>MOTHER</td><td>Nanay</td></tr>
+            <tr><td>SON</td><td>Anak na lalaki</td></tr>
+            <tr><td>DAUGHTER</td><td>Anak na babae</td></tr>
+            <tr><td>GRANDFATHER</td><td>Lolo</td></tr>
+            <tr><td>GRANDMOTHER</td><td>Lola</td></tr>
+            <tr><td>UNCLE</td><td>Tito</td></tr>
+            <tr><td>AUNTIE</td><td>Tita</td></tr>
+            <tr><td>COUSIN</td><td>Pinsan</td></tr>
+            <tr><td>PARENTS</td><td>Magulang</td></tr>
+          </table>
+        </div>
+
+        <div class="ip-dict-group">
+          <div class="ip-dict-cat">Relationships (10)</div>
+          <table class="ip-dict-table">
+            <tr><td>BOY</td><td>Batang lalaki</td></tr>
+            <tr><td>GIRL</td><td>Batang babae</td></tr>
+            <tr><td>MAN</td><td>Lalaki</td></tr>
+            <tr><td>WOMAN</td><td>Babae</td></tr>
+            <tr><td>DEAF</td><td>Bingi</td></tr>
+            <tr><td>HARD OF HEARING</td><td>Mahirap marinig</td></tr>
+            <tr><td>WEELCHAIR PERSON</td><td>Taong gumagamit ng wheelchair</td></tr>
+            <tr><td>BLIND</td><td>Bulag</td></tr>
+            <tr><td>DEAF BLIND</td><td>Bingi at bulag</td></tr>
+            <tr><td>MARRIED</td><td>Kasal</td></tr>
+          </table>
+        </div>
+
+        <div class="ip-dict-group">
+          <div class="ip-dict-cat">Color (13)</div>
+          <table class="ip-dict-table">
+            <tr><td>BLUE</td><td>Asul</td></tr>
+            <tr><td>GREEN</td><td>Berde</td></tr>
+            <tr><td>RED</td><td>Pula</td></tr>
+            <tr><td>BROWN</td><td>Kayumanggi</td></tr>
+            <tr><td>BLACK</td><td>Itim</td></tr>
+            <tr><td>WHITE</td><td>Puti</td></tr>
+            <tr><td>YELLOW</td><td>Dilaw</td></tr>
+            <tr><td>ORANGE</td><td>Kahel</td></tr>
+            <tr><td>GRAY</td><td>Kulay abo</td></tr>
+            <tr><td>PINK</td><td>Rosas</td></tr>
+            <tr><td>VIOLET</td><td>Lila</td></tr>
+            <tr><td>LIGHT</td><td>Maliwanag</td></tr>
+            <tr><td>DARK</td><td>Madilim</td></tr>
+          </table>
+        </div>
+
+        <div class="ip-dict-group">
+          <div class="ip-dict-cat">Food (10)</div>
+          <table class="ip-dict-table">
+            <tr><td>BREAD</td><td>Tinapay</td></tr>
+            <tr><td>EGG</td><td>Itlog</td></tr>
+            <tr><td>FISH</td><td>Isda</td></tr>
+            <tr><td>MEAT</td><td>Karne</td></tr>
+            <tr><td>CHICKEN</td><td>Manok</td></tr>
+            <tr><td>SPAGHETTI</td><td>Spaghetti</td></tr>
+            <tr><td>RICE</td><td>Kanin</td></tr>
+            <tr><td>LONGANISA</td><td>Longganisa</td></tr>
+            <tr><td>SHRIMP</td><td>Hipon</td></tr>
+            <tr><td>CRAB</td><td>Alimango</td></tr>
+          </table>
+        </div>
+
+        <div class="ip-dict-group" style="margin-bottom:0">
+          <div class="ip-dict-cat">Drink (10)</div>
+          <table class="ip-dict-table">
+            <tr><td>HOT</td><td>Mainit</td></tr>
+            <tr><td>COLD</td><td>Malamig</td></tr>
+            <tr><td>JUICE</td><td>Juice</td></tr>
+            <tr><td>MILK</td><td>Gatas</td></tr>
+            <tr><td>COFFEE</td><td>Kape</td></tr>
+            <tr><td>TEA</td><td>Tsaa</td></tr>
+            <tr><td>BEER</td><td>Beer</td></tr>
+            <tr><td>WINE</td><td>Alak</td></tr>
+            <tr><td>SUGAR</td><td>Asukal</td></tr>
+            <tr><td>NO SUGAR</td><td>Walang asukal</td></tr>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Research Team -->
+    <div>
+      <div class="ip-section-title">Research Team</div>
+      <div class="ip-team-grid">
+        <div class="ip-team-member"><div class="name">Hyowon Azril Bernabe</div><div class="email">2244644@slu.edu.ph</div></div>
+        <div class="ip-team-member"><div class="name">Darren Caguioa</div><div class="email">2243683@slu.edu.ph</div></div>
+        <div class="ip-team-member"><div class="name">Krenz Darrel Casilen</div><div class="email">2244658@slu.edu.ph</div></div>
+        <div class="ip-team-member"><div class="name">Princess Kyla Rose Ferrer</div><div class="email">2240711@slu.edu.ph</div></div>
+        <div class="ip-team-member"><div class="name">Aldyn Zandrex Lawagan</div><div class="email">2240895@slu.edu.ph</div></div>
+        <div class="ip-team-member"><div class="name">Jazreil Jaron Sabog</div><div class="email">2244761@slu.edu.ph</div></div>
+        <div class="ip-team-member"><div class="name">Keziah Mae Tingga-an</div><div class="email">2240717@slu.edu.ph</div></div>
+      </div>
+    </div>
+
+    <div style="text-align:center; padding: 8px 0 4px">
+      <span style="font-size:10px; color:var(--muted); letter-spacing:.04em">Saint Louis University · Baguio City, Philippines · 2026</span>
+    </div>
+
+  </div>
+</div>
 
 <div class="cam-wrap">
   <video id="cam" autoplay playsinline muted></video>
@@ -244,6 +854,18 @@
 </div>
 
 <script>
+  // ── Info panel toggle ─────────────────────────────────────────────────
+  function toggleInfo() {
+    document.getElementById('info-backdrop').classList.toggle('open');
+    document.getElementById('info-panel').classList.toggle('open');
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.getElementById('info-backdrop').classList.remove('open');
+      document.getElementById('info-panel').classList.remove('open');
+    }
+  });
+
   // ── Config ────────────────────────────────────────────────────────────
   const MIN_FRAMES   = 30;
   const POLL_MS      = 150;   // inference cadence — MediaPipe ~20ms so 150ms is safe

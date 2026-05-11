@@ -1,0 +1,2 @@
+docs\research\ will be the main Research paper.
+scratch\SikapSalita\live_demo\static is the main SikapSalita project directory (FastAPI live demo app). This is the actual main repo going forward. Always refer to the Research Paper as the main source of truth but do not change any of the codebase unless actually told so.
