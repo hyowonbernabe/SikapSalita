@@ -42,12 +42,20 @@ class PredictRequest(BaseModel):
 
 @app.post("/predict")
 async def predict(req: PredictRequest) -> JSONResponse:
-    vec178 = extract_from_base64(req.frame)
+    vec178, mask89 = extract_from_base64(req.frame)
     push_frame(vec178)
-    predictions = predict_top3()
+
+    # Keypoint layout: pose[0..24], left_hand[25..45], right_hand[46..66], face[67..88]
+    hands_detected = bool(mask89[25:67].any())
+
+    predictions = predict_top3() if hands_detected else []
+
     return JSONResponse({
         "predictions": predictions,
         "buffered_frames": buffered_frame_count(),
+        "hands_detected": hands_detected,
+        "landmarks": vec178.tolist(),   # 178 normalised floats
+        "landmark_mask": mask89.tolist(),  # 89 bools, True = detected
     })
 
 

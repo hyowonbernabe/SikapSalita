@@ -121,6 +121,16 @@
       transform: scaleX(-1); /* mirror — more natural for presenter */
     }
 
+    /* Skeleton overlay — matches video mirror */
+    #skeleton {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      transform: scaleX(-1);
+    }
+
     /* ── Warmup overlay ──────────────────────────────────────────────── */
     #warmup {
       position: absolute;
@@ -133,8 +143,9 @@
       background: rgba(34,40,49,.65);
       backdrop-filter: blur(4px);
       transition: opacity .5s;
+      pointer-events: none;
     }
-    #warmup.hidden { opacity: 0; pointer-events: none; }
+    #warmup.hidden { opacity: 0; }
 
     .spinner {
       width: 42px; height: 42px;
@@ -205,7 +216,10 @@
       text-transform: uppercase;
       flex-shrink: 0;
       align-self: center;
+      transition: opacity .25s;
     }
+    #top-badge.hidden { opacity: 0; }
+
     #top-conf {
       margin-left: auto;
       font-size: 1.1rem;
@@ -281,7 +295,7 @@
     #no-cam svg { opacity: .4; }
     #no-cam.visible { display: flex; }
 
-    canvas { display: none; }
+    canvas#capture { display: none; }
   </style>
 </head>
 <body>
@@ -300,12 +314,17 @@
 
 <div class="cam-wrap">
   <video id="cam" autoplay playsinline muted></video>
-  <canvas id="canvas"></canvas>
+
+  <!-- Skeleton overlay canvas (mirrored to match video) -->
+  <canvas id="skeleton"></canvas>
+
+  <!-- Hidden capture canvas -->
+  <canvas id="capture"></canvas>
 
   <!-- Warmup overlay -->
   <div id="warmup">
     <div class="spinner"></div>
-    <div id="warmup-text">Warming up — hold a sign…</div>
+    <div id="warmup-text">Show your hands — warming up…</div>
     <div id="warmup-bar-wrap"><div id="warmup-bar"></div></div>
   </div>
 
@@ -313,20 +332,20 @@
   <div id="overlay">
     <div class="top-row">
       <div id="top-label">—</div>
-      <div id="top-badge">—</div>
-      <div id="top-conf">—</div>
+      <div id="top-badge" class="hidden">—</div>
+      <div id="top-conf"></div>
     </div>
     <div class="bar-wrap"><div class="bar-fill" id="top-bar" style="width:0%"></div></div>
 
-    <div class="alt-row" id="alt1-row">
+    <div class="alt-row">
       <div class="alt-label" id="alt1-label">—</div>
       <div class="alt-bar-wrap"><div class="alt-bar-fill" id="alt1-bar" style="width:0%"></div></div>
-      <div class="alt-conf" id="alt1-conf">—</div>
+      <div class="alt-conf" id="alt1-conf"></div>
     </div>
-    <div class="alt-row" id="alt2-row">
+    <div class="alt-row">
       <div class="alt-label" id="alt2-label">—</div>
       <div class="alt-bar-wrap"><div class="alt-bar-fill" id="alt2-bar" style="width:0%"></div></div>
-      <div class="alt-conf" id="alt2-conf">—</div>
+      <div class="alt-conf" id="alt2-conf"></div>
     </div>
   </div>
 
@@ -345,9 +364,40 @@
   const POLL_MS    = 300;
   const JPEG_Q     = 0.7;
 
+  // ── Keypoint layout in vec178 / mask89 ───────────────────────────────
+  // pose:       kp[0..24]   → coords[0..49]
+  // left_hand:  kp[25..45]  → coords[50..91]
+  // right_hand: kp[46..66]  → coords[92..133]
+  // face:       kp[67..88]  → coords[134..177]
+
+  // MediaPipe hand connections (21 landmarks)
+  const HAND_CONNECTIONS = [
+    [0,1],[1,2],[2,3],[3,4],        // thumb
+    [0,5],[5,6],[6,7],[7,8],        // index
+    [0,9],[9,10],[10,11],[11,12],   // middle
+    [0,13],[13,14],[14,15],[15,16], // ring
+    [0,17],[17,18],[18,19],[19,20], // pinky
+    [5,9],[9,13],[13,17],           // palm
+  ];
+
+  // Upper-body pose connections (indices into the 25-point subset)
+  // Subset order mirrors POSE_UPPER_25 = [0..10] + [11..16] + [17..22] + [23,24]
+  // We draw shoulder–elbow–wrist chains and a few torso lines
+  const POSE_CONNECTIONS = [
+    // arms
+    [11,13],[13,15], // left arm (shoulder, elbow, wrist)
+    [12,14],[14,16], // right arm
+    // torso
+    [11,12],[11,23],[12,24],[23,24],
+    // face to shoulders (neck approximation)
+    [0,11],[0,12],
+  ];
+
   const cam       = document.getElementById('cam');
-  const canvas    = document.getElementById('canvas');
-  const ctx       = canvas.getContext('2d');
+  const capture   = document.getElementById('capture');
+  const skelCanvas= document.getElementById('skeleton');
+  const skelCtx   = skelCanvas.getContext('2d');
+  const captureCtx= capture.getContext('2d');
   const warmupEl  = document.getElementById('warmup');
   const warmupTxt = document.getElementById('warmup-text');
   const warmupBar = document.getElementById('warmup-bar');
@@ -357,56 +407,121 @@
   const topBadge  = document.getElementById('top-badge');
   const topConf   = document.getElementById('top-conf');
   const topBar    = document.getElementById('top-bar');
-
   const alt1Label = document.getElementById('alt1-label');
   const alt1Bar   = document.getElementById('alt1-bar');
   const alt1Conf  = document.getElementById('alt1-conf');
-
   const alt2Label = document.getElementById('alt2-label');
   const alt2Bar   = document.getElementById('alt2-bar');
   const alt2Conf  = document.getElementById('alt2-conf');
 
   let polling = false;
 
-  async function startCamera() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-      cam.srcObject = stream;
-      cam.onloadedmetadata = () => {
-        canvas.width  = cam.videoWidth  || 640;
-        canvas.height = cam.videoHeight || 480;
-        beginPolling();
-      };
-    } catch (e) {
-      noCam.classList.add('visible');
-      console.error('Camera error:', e);
+  // ── Skeleton drawing ─────────────────────────────────────────────────
+
+  function kpXY(landmarks, mask, kpIdx) {
+    // Returns {x, y} in skeleton canvas pixels, or null if not detected
+    if (!mask[kpIdx]) return null;
+    const cx = landmarks[kpIdx * 2];
+    const cy = landmarks[kpIdx * 2 + 1];
+    return { x: cx * skelCanvas.width, y: cy * skelCanvas.height };
+  }
+
+  function drawConnections(landmarks, mask, connections, kpOffset, color, lineWidth) {
+    skelCtx.strokeStyle = color;
+    skelCtx.lineWidth   = lineWidth;
+    skelCtx.lineCap     = 'round';
+    for (const [a, b] of connections) {
+      const pa = kpXY(landmarks, mask, kpOffset + a);
+      const pb = kpXY(landmarks, mask, kpOffset + b);
+      if (!pa || !pb) continue;
+      skelCtx.beginPath();
+      skelCtx.moveTo(pa.x, pa.y);
+      skelCtx.lineTo(pb.x, pb.y);
+      skelCtx.stroke();
     }
   }
 
-  function captureFrame() {
-    ctx.drawImage(cam, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/jpeg', JPEG_Q);
+  function drawDots(landmarks, mask, kpOffset, count, color, radius) {
+    skelCtx.fillStyle = color;
+    for (let i = 0; i < count; i++) {
+      const p = kpXY(landmarks, mask, kpOffset + i);
+      if (!p) continue;
+      skelCtx.beginPath();
+      skelCtx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+      skelCtx.fill();
+    }
   }
+
+  function drawSkeleton(landmarks, mask) {
+    skelCanvas.width  = skelCanvas.offsetWidth;
+    skelCanvas.height = skelCanvas.offsetHeight;
+    skelCtx.clearRect(0, 0, skelCanvas.width, skelCanvas.height);
+
+    // Pose (kp offset 0)
+    drawConnections(landmarks, mask, POSE_CONNECTIONS, 0, 'rgba(148,137,121,0.55)', 2);
+    drawDots(landmarks, mask, 0, 25, 'rgba(148,137,121,0.7)', 3);
+
+    // Left hand (kp offset 25)
+    drawConnections(landmarks, mask, HAND_CONNECTIONS, 25, 'rgba(76,175,130,0.85)', 2);
+    drawDots(landmarks, mask, 25, 21, '#4caf82', 4);
+
+    // Right hand (kp offset 46)
+    drawConnections(landmarks, mask, HAND_CONNECTIONS, 46, 'rgba(223,208,184,0.85)', 2);
+    drawDots(landmarks, mask, 46, 21, '#DFD0B8', 4);
+
+    // Face (kp offset 67) — dots only
+    drawDots(landmarks, mask, 67, 22, 'rgba(148,137,121,0.5)', 2);
+  }
+
+  // ── UI updates ───────────────────────────────────────────────────────
 
   function pct(v) { return Math.round(v * 100); }
 
-  function updateUI(predictions, buffered) {
-    // Update warmup bar
-    const progress = Math.min(buffered / MIN_FRAMES, 1);
+  function clearPredictions() {
+    topLabel.textContent = '—';
+    topBadge.classList.add('hidden');
+    topConf.textContent  = '';
+    topBar.style.width   = '0%';
+    alt1Label.textContent = '—';
+    alt1Bar.style.width   = '0%';
+    alt1Conf.textContent  = '';
+    alt2Label.textContent = '—';
+    alt2Bar.style.width   = '0%';
+    alt2Conf.textContent  = '';
+  }
+
+  function updateUI(data) {
+    const { predictions, buffered_frames, hands_detected, landmarks, landmark_mask } = data;
+
+    // Warmup bar
+    const progress = Math.min(buffered_frames / MIN_FRAMES, 1);
     warmupBar.style.width = (progress * 100) + '%';
 
-    if (predictions.length === 0) {
-      warmupTxt.textContent = `Warming up — ${buffered}/${MIN_FRAMES} frames buffered…`;
+    // Draw skeleton regardless of prediction state
+    if (landmarks && landmark_mask) {
+      drawSkeleton(landmarks, landmark_mask);
+    }
+
+    if (!hands_detected) {
+      warmupTxt.textContent = 'Show your hands to the camera…';
+      clearPredictions();
       return;
     }
 
-    // Hide warmup
+    if (predictions.length === 0) {
+      warmupTxt.textContent = `Warming up — ${buffered_frames}/${MIN_FRAMES} frames…`;
+      clearPredictions();
+      return;
+    }
+
+    // Hide warmup once we have real predictions
     warmupEl.classList.add('hidden');
 
     const [p0, p1, p2] = predictions;
 
     topLabel.textContent = p0.label;
     topBadge.textContent = p0.category;
+    topBadge.classList.remove('hidden');
     topConf.textContent  = pct(p0.confidence) + '%';
     topBar.style.width   = pct(p0.confidence) + '%';
 
@@ -423,28 +538,43 @@
     }
   }
 
+  // ── Polling ──────────────────────────────────────────────────────────
+
   async function poll() {
     if (polling) return;
     polling = true;
     try {
-      const frame = captureFrame();
+      captureCtx.drawImage(cam, 0, 0, capture.width, capture.height);
+      const frame = capture.toDataURL('image/jpeg', JPEG_Q);
       const res   = await fetch('/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ frame }),
       });
       if (!res.ok) return;
-      const data = await res.json();
-      updateUI(data.predictions, data.buffered_frames);
-    } catch (e) {
-      // network blip — ignore, next tick will retry
+      updateUI(await res.json());
+    } catch (_) {
+      // network blip — next tick retries
     } finally {
       polling = false;
     }
   }
 
-  function beginPolling() {
-    setInterval(poll, POLL_MS);
+  // ── Camera init ──────────────────────────────────────────────────────
+
+  async function startCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+      cam.srcObject = stream;
+      cam.onloadedmetadata = () => {
+        capture.width  = cam.videoWidth  || 640;
+        capture.height = cam.videoHeight || 480;
+        setInterval(poll, POLL_MS);
+      };
+    } catch (e) {
+      noCam.classList.add('visible');
+      console.error('Camera error:', e);
+    }
   }
 
   startCamera();
