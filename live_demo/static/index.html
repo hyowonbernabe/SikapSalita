@@ -38,259 +38,141 @@
       flex-shrink: 0;
       z-index: 10;
     }
-
     .brand-icon {
       width: 34px; height: 34px;
       background: var(--accent);
       border-radius: 8px;
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      font-size: 13px;
-      letter-spacing: -.5px;
-      color: #fff;
-      flex-shrink: 0;
+      display: grid; place-items: center;
+      font-weight: 800; font-size: 13px; letter-spacing: -.5px;
+      color: #fff; flex-shrink: 0;
     }
-
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.1;
-    }
-    .brand-text .wordmark {
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      color: var(--primary);
-    }
-    .brand-text .tagline {
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: .03em;
-    }
-
+    .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+    .brand-text .wordmark { font-size: 15px; font-weight: 700; letter-spacing: .08em; color: var(--primary); }
+    .brand-text .tagline  { font-size: 10px; color: var(--muted); letter-spacing: .03em; }
     .spacer { flex: 1; }
-
     .live-pill {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(76,175,130,.12);
-      border: 1px solid rgba(76,175,130,.3);
-      border-radius: 20px;
-      padding: 4px 10px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--accent);
-      letter-spacing: .04em;
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(76,175,130,.12); border: 1px solid rgba(76,175,130,.3);
+      border-radius: 20px; padding: 4px 10px;
+      font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: .04em;
     }
     .live-dot {
-      width: 7px; height: 7px;
-      background: var(--accent);
-      border-radius: 50%;
+      width: 7px; height: 7px; background: var(--accent); border-radius: 50%;
       animation: pulse 1.4s ease-in-out infinite;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%       { opacity: .4; transform: scale(.8); }
-    }
-
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
     .tag {
-      background: var(--bg);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 6px;
-      padding: 3px 8px;
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: .03em;
+      background: var(--bg); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 6px; padding: 3px 8px; font-size: 10px; color: var(--muted); letter-spacing: .03em;
     }
 
     /* ── Camera area ─────────────────────────────────────────────────── */
-    .cam-wrap {
-      position: relative;
-      flex: 1;
-      overflow: hidden;
-      background: #111;
-    }
+    .cam-wrap { position: relative; flex: 1; overflow: hidden; background: #111; }
 
     #cam {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transform: scaleX(-1); /* mirror — more natural for presenter */
-    }
-
-    /* Skeleton overlay — matches video mirror */
-    #skeleton {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
+      width: 100%; height: 100%; object-fit: cover; display: block;
       transform: scaleX(-1);
+    }
+    #skeleton {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      pointer-events: none; transform: scaleX(-1);
     }
 
     /* ── Warmup overlay ──────────────────────────────────────────────── */
     #warmup {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      background: rgba(34,40,49,.65);
-      backdrop-filter: blur(4px);
-      transition: opacity .5s;
-      pointer-events: none;
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+      background: rgba(34,40,49,.65); backdrop-filter: blur(4px);
+      transition: opacity .5s; pointer-events: none;
     }
     #warmup.hidden { opacity: 0; }
-
     .spinner {
       width: 42px; height: 42px;
-      border: 3px solid rgba(255,255,255,.1);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
+      border: 3px solid rgba(255,255,255,.1); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin .8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    #warmup-text {
-      font-size: 13px;
-      color: var(--muted);
-      letter-spacing: .05em;
-    }
-
+    #warmup-text { font-size: 13px; color: var(--muted); letter-spacing: .05em; }
     #warmup-bar-wrap {
-      width: 180px;
-      height: 4px;
-      background: rgba(255,255,255,.08);
-      border-radius: 2px;
-      overflow: hidden;
+      width: 180px; height: 4px; background: rgba(255,255,255,.08);
+      border-radius: 2px; overflow: hidden;
     }
-    #warmup-bar {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 2px;
-      width: 0%;
-      transition: width .3s ease;
+    #warmup-bar { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; transition: width .3s ease; }
+
+    /* ── Bottom gradient overlay ─────────────────────────────────────── */
+    #overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 20px 32px 24px;
+      background: linear-gradient(to top, rgba(34,40,49,.98) 0%, rgba(34,40,49,.85) 55%, transparent 100%);
     }
 
-    /* ── Prediction overlay ──────────────────────────────────────────── */
-    #overlay {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      padding: 28px 32px 28px;
-      background: linear-gradient(
-        to top,
-        rgba(34,40,49,.98) 0%,
-        rgba(34,40,49,.85) 55%,
-        transparent 100%
-      );
+    /* Sentence strip */
+    #sentence-strip {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px; min-height: 38px;
+    }
+    #sentence-text {
+      flex: 1; font-size: 1.1rem; font-weight: 600;
+      color: var(--primary); letter-spacing: .03em;
+      word-break: break-word; line-height: 1.4;
+      min-height: 1.4em;
+    }
+    #sentence-text:empty::before { content: 'Sentence will appear here…'; color: var(--muted); font-weight: 400; font-size: .9rem; }
+    .ctrl-btn {
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px; padding: 5px 10px; color: var(--muted);
+      font-size: 12px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+      transition: background .15s, color .15s;
+    }
+    .ctrl-btn:hover { background: rgba(255,255,255,.14); color: var(--primary); }
+    .ctrl-btn.speak {
+      background: rgba(76,175,130,.15); border-color: rgba(76,175,130,.35);
+      color: var(--accent);
+    }
+    .ctrl-btn.speak:hover { background: rgba(76,175,130,.28); }
+    .ctrl-btn.speak.speaking { animation: speakPulse 0.7s ease-in-out infinite alternate; }
+    @keyframes speakPulse { from { opacity: 1; } to { opacity: 0.5; } }
+
+    /* Dwell strip */
+    .dwell-wrap {
+      height: 3px; background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden; margin-bottom: 6px;
+    }
+    #dwell-bar {
+      height: 100%; background: var(--accent); border-radius: 2px; width: 0%;
+      transition: width .25s linear;
     }
 
     /* Top prediction */
-    .top-row {
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
-      margin-bottom: 6px;
-    }
+    .top-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
     #top-label {
-      font-size: 2.6rem;
-      font-weight: 800;
-      letter-spacing: .02em;
-      color: var(--primary);
-      transition: opacity .25s;
-      line-height: 1;
+      font-size: 2.6rem; font-weight: 800; letter-spacing: .02em;
+      color: var(--primary); transition: opacity .25s; line-height: 1;
     }
     #top-badge {
-      background: var(--accent);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      padding: 3px 8px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      flex-shrink: 0;
-      align-self: center;
-      transition: opacity .25s;
+      background: var(--accent); color: #fff;
+      font-size: 10px; font-weight: 700; letter-spacing: .08em;
+      padding: 3px 8px; border-radius: 4px; text-transform: uppercase;
+      flex-shrink: 0; align-self: center; transition: opacity .25s;
     }
     #top-badge.hidden { opacity: 0; }
+    #top-conf { margin-left: auto; font-size: 1.1rem; font-weight: 700; color: var(--accent); flex-shrink: 0; }
 
-    #top-conf {
-      margin-left: auto;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--accent);
-      flex-shrink: 0;
-    }
-
-    .bar-wrap {
-      height: 4px;
-      background: rgba(255,255,255,.08);
-      border-radius: 2px;
-      overflow: hidden;
-      margin-bottom: 18px;
-    }
-    .bar-fill {
-      height: 100%;
-      border-radius: 2px;
-      transition: width .4s ease;
-    }
+    .bar-wrap { height: 4px; background: rgba(255,255,255,.08); border-radius: 2px; overflow: hidden; margin-bottom: 14px; }
+    .bar-fill { height: 100%; border-radius: 2px; transition: width .4s ease; }
     #top-bar { background: var(--accent); }
 
     /* Runner-ups */
-    .alt-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .alt-label {
-      font-size: .95rem;
-      font-weight: 600;
-      color: var(--muted);
-      min-width: 140px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .alt-conf {
-      font-size: .85rem;
-      color: var(--muted);
-      margin-left: auto;
-      flex-shrink: 0;
-    }
-    .alt-bar-wrap {
-      flex: 1;
-      height: 3px;
-      background: rgba(255,255,255,.06);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .alt-bar-fill {
-      height: 100%;
-      background: var(--muted);
-      border-radius: 2px;
-      transition: width .4s ease;
-    }
+    .alt-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .alt-label { font-size: .95rem; font-weight: 600; color: var(--muted); min-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .alt-conf  { font-size: .85rem; color: var(--muted); margin-left: auto; flex-shrink: 0; }
+    .alt-bar-wrap { flex: 1; height: 3px; background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden; }
+    .alt-bar-fill { height: 100%; background: var(--muted); border-radius: 2px; transition: width .4s ease; }
 
-    /* ── No camera message ───────────────────────────────────────────── */
+    /* ── No camera ───────────────────────────────────────────────────── */
     #no-cam {
-      position: absolute;
-      inset: 0;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      color: var(--muted);
-      font-size: 14px;
-      text-align: center;
-      padding: 32px;
+      position: absolute; inset: 0; display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; color: var(--muted); font-size: 14px; text-align: center; padding: 32px;
     }
     #no-cam svg { opacity: .4; }
     #no-cam.visible { display: flex; }
@@ -314,22 +196,29 @@
 
 <div class="cam-wrap">
   <video id="cam" autoplay playsinline muted></video>
-
-  <!-- Skeleton overlay canvas (mirrored to match video) -->
   <canvas id="skeleton"></canvas>
-
-  <!-- Hidden capture canvas -->
   <canvas id="capture"></canvas>
 
-  <!-- Warmup overlay -->
   <div id="warmup">
     <div class="spinner"></div>
     <div id="warmup-text">Show your hands — warming up…</div>
     <div id="warmup-bar-wrap"><div id="warmup-bar"></div></div>
   </div>
 
-  <!-- Prediction overlay -->
   <div id="overlay">
+
+    <!-- Sentence strip -->
+    <div id="sentence-strip">
+      <div id="sentence-text"></div>
+      <button class="ctrl-btn" id="btn-delete" title="Delete last word">⌫ Word</button>
+      <button class="ctrl-btn" id="btn-clear"  title="Clear sentence">✕ Clear</button>
+      <button class="ctrl-btn speak" id="btn-speak" title="Speak sentence">▶ Speak</button>
+    </div>
+
+    <!-- Dwell charge bar -->
+    <div class="dwell-wrap"><div id="dwell-bar"></div></div>
+
+    <!-- Top prediction -->
     <div class="top-row">
       <div id="top-label">—</div>
       <div id="top-badge" class="hidden">—</div>
@@ -337,6 +226,7 @@
     </div>
     <div class="bar-wrap"><div class="bar-fill" id="top-bar" style="width:0%"></div></div>
 
+    <!-- Runner-ups -->
     <div class="alt-row">
       <div class="alt-label" id="alt1-label">—</div>
       <div class="alt-bar-wrap"><div class="alt-bar-fill" id="alt1-bar" style="width:0%"></div></div>
@@ -347,9 +237,9 @@
       <div class="alt-bar-wrap"><div class="alt-bar-fill" id="alt2-bar" style="width:0%"></div></div>
       <div class="alt-conf" id="alt2-conf"></div>
     </div>
-  </div>
 
-  <!-- No camera fallback -->
+  </div><!-- /overlay -->
+
   <div id="no-cam">
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
@@ -360,66 +250,143 @@
 </div>
 
 <script>
-  const MIN_FRAMES = 30;
-  const POLL_MS    = 300;
-  const JPEG_Q     = 0.7;
+  // ── Config ───────────────────────────────────────────────────────────
+  const MIN_FRAMES    = 30;
+  const POLL_MS       = 300;
+  const JPEG_Q        = 0.7;
+  const DWELL_FRAMES  = 10;       // polls at same label before commit (~3s)
+  const MIN_CONF      = 0.60;     // minimum confidence to start dwell
+  const COOLDOWN_MS   = 2000;     // block same word for this long after commit
 
-  // ── Keypoint layout in vec178 / mask89 ───────────────────────────────
-  // pose:       kp[0..24]   → coords[0..49]
-  // left_hand:  kp[25..45]  → coords[50..91]
-  // right_hand: kp[46..66]  → coords[92..133]
-  // face:       kp[67..88]  → coords[134..177]
-
-  // MediaPipe hand connections (21 landmarks)
+  // ── Keypoint layout ──────────────────────────────────────────────────
+  // pose[0..24], left_hand[25..45], right_hand[46..66], face[67..88]
   const HAND_CONNECTIONS = [
-    [0,1],[1,2],[2,3],[3,4],        // thumb
-    [0,5],[5,6],[6,7],[7,8],        // index
-    [0,9],[9,10],[10,11],[11,12],   // middle
-    [0,13],[13,14],[14,15],[15,16], // ring
-    [0,17],[17,18],[18,19],[19,20], // pinky
-    [5,9],[9,13],[13,17],           // palm
+    [0,1],[1,2],[2,3],[3,4],
+    [0,5],[5,6],[6,7],[7,8],
+    [0,9],[9,10],[10,11],[11,12],
+    [0,13],[13,14],[14,15],[15,16],
+    [0,17],[17,18],[18,19],[19,20],
+    [5,9],[9,13],[13,17],
   ];
-
-  // Upper-body pose connections (indices into the 25-point subset)
-  // Subset order mirrors POSE_UPPER_25 = [0..10] + [11..16] + [17..22] + [23,24]
-  // We draw shoulder–elbow–wrist chains and a few torso lines
   const POSE_CONNECTIONS = [
-    // arms
-    [11,13],[13,15], // left arm (shoulder, elbow, wrist)
-    [12,14],[14,16], // right arm
-    // torso
+    [11,13],[13,15],[12,14],[14,16],
     [11,12],[11,23],[12,24],[23,24],
-    // face to shoulders (neck approximation)
     [0,11],[0,12],
   ];
 
-  const cam       = document.getElementById('cam');
-  const capture   = document.getElementById('capture');
-  const skelCanvas= document.getElementById('skeleton');
-  const skelCtx   = skelCanvas.getContext('2d');
-  const captureCtx= capture.getContext('2d');
-  const warmupEl  = document.getElementById('warmup');
-  const warmupTxt = document.getElementById('warmup-text');
-  const warmupBar = document.getElementById('warmup-bar');
-  const noCam     = document.getElementById('no-cam');
+  // ── DOM refs ─────────────────────────────────────────────────────────
+  const cam        = document.getElementById('cam');
+  const capture    = document.getElementById('capture');
+  const skelCanvas = document.getElementById('skeleton');
+  const skelCtx    = skelCanvas.getContext('2d');
+  const captureCtx = capture.getContext('2d');
+  const warmupEl   = document.getElementById('warmup');
+  const warmupTxt  = document.getElementById('warmup-text');
+  const warmupBar  = document.getElementById('warmup-bar');
+  const noCam      = document.getElementById('no-cam');
+  const topLabel   = document.getElementById('top-label');
+  const topBadge   = document.getElementById('top-badge');
+  const topConf    = document.getElementById('top-conf');
+  const topBar     = document.getElementById('top-bar');
+  const alt1Label  = document.getElementById('alt1-label');
+  const alt1Bar    = document.getElementById('alt1-bar');
+  const alt1Conf   = document.getElementById('alt1-conf');
+  const alt2Label  = document.getElementById('alt2-label');
+  const alt2Bar    = document.getElementById('alt2-bar');
+  const alt2Conf   = document.getElementById('alt2-conf');
+  const dwellBar   = document.getElementById('dwell-bar');
+  const sentenceEl = document.getElementById('sentence-text');
+  const btnDelete  = document.getElementById('btn-delete');
+  const btnClear   = document.getElementById('btn-clear');
+  const btnSpeak   = document.getElementById('btn-speak');
 
-  const topLabel  = document.getElementById('top-label');
-  const topBadge  = document.getElementById('top-badge');
-  const topConf   = document.getElementById('top-conf');
-  const topBar    = document.getElementById('top-bar');
-  const alt1Label = document.getElementById('alt1-label');
-  const alt1Bar   = document.getElementById('alt1-bar');
-  const alt1Conf  = document.getElementById('alt1-conf');
-  const alt2Label = document.getElementById('alt2-label');
-  const alt2Bar   = document.getElementById('alt2-bar');
-  const alt2Conf  = document.getElementById('alt2-conf');
+  // ── State ─────────────────────────────────────────────────────────────
+  let polling      = false;
+  let dwellLabel   = null;
+  let dwellCount   = 0;
+  let cooldownUntil = 0;  // timestamp — block same-word repeat until this time
+  let words        = [];  // committed sentence words
 
-  let polling = false;
+  // ── TTS ───────────────────────────────────────────────────────────────
+  // Load voices (Chrome loads them async)
+  let _voices = [];
+  function getVoices() {
+    if (_voices.length) return _voices;
+    _voices = speechSynthesis.getVoices();
+    return _voices;
+  }
+  speechSynthesis.onvoiceschanged = () => { _voices = speechSynthesis.getVoices(); };
 
-  // ── Skeleton drawing ─────────────────────────────────────────────────
+  function speak(text) {
+    if (!text) return;
+    speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    const voices = getVoices();
+    const fil = voices.find(v => v.lang === 'fil-PH' || v.lang.startsWith('fil'));
+    utt.voice = fil || null;
+    utt.lang  = fil ? 'fil-PH' : 'en-US';
+    utt.rate  = 0.88;
+    utt.onstart = () => btnSpeak.classList.add('speaking');
+    utt.onend   = () => btnSpeak.classList.remove('speaking');
+    speechSynthesis.speak(utt);
+  }
 
-  // Compute the object-fit:cover viewport so skeleton coords map to the
-  // same pixels the video actually renders on screen.
+  // ── Sentence controls ─────────────────────────────────────────────────
+  function renderSentence() {
+    sentenceEl.textContent = words.join(' ');
+  }
+
+  function commitWord(label) {
+    words.push(label);
+    renderSentence();
+    speak(label);  // speak each word as it's committed
+  }
+
+  btnDelete.addEventListener('click', () => {
+    words.pop();
+    renderSentence();
+  });
+
+  btnClear.addEventListener('click', () => {
+    words = [];
+    renderSentence();
+    speechSynthesis.cancel();
+  });
+
+  btnSpeak.addEventListener('click', () => {
+    speak(words.join(' '));
+  });
+
+  // ── Dwell logic ───────────────────────────────────────────────────────
+  function updateDwell(predictions, handsDetected) {
+    if (!handsDetected || predictions.length === 0) {
+      dwellLabel = null; dwellCount = 0; dwellBar.style.width = '0%';
+      return;
+    }
+    const top = predictions[0];
+    if (top.confidence < MIN_CONF) {
+      dwellLabel = null; dwellCount = 0; dwellBar.style.width = '0%';
+      return;
+    }
+    if (top.label !== dwellLabel) {
+      dwellLabel = top.label; dwellCount = 1;
+    } else {
+      dwellCount++;
+    }
+    dwellBar.style.width = Math.min(dwellCount / DWELL_FRAMES * 100, 100) + '%';
+
+    if (dwellCount >= DWELL_FRAMES) {
+      const now = Date.now();
+      if (now >= cooldownUntil) {
+        cooldownUntil = now + COOLDOWN_MS;
+        commitWord(dwellLabel);
+        dwellCount = 0;
+        dwellBar.style.width = '0%';
+      }
+    }
+  }
+
+  // ── Skeleton drawing ──────────────────────────────────────────────────
   function coverTransform() {
     const cw = skelCanvas.width,  ch = skelCanvas.height;
     const vw = cam.videoWidth  || cw;
@@ -430,28 +397,20 @@
   }
 
   function kpXY(landmarks, mask, kpIdx, tf) {
-    // Returns {x, y} in skeleton canvas pixels, or null if not detected
     if (!mask[kpIdx]) return null;
-    const nx = landmarks[kpIdx * 2];
-    const ny = landmarks[kpIdx * 2 + 1];
     return {
-      x: tf.offX + nx * tf.dw,
-      y: tf.offY + ny * tf.dh,
+      x: tf.offX + landmarks[kpIdx * 2]     * tf.dw,
+      y: tf.offY + landmarks[kpIdx * 2 + 1] * tf.dh,
     };
   }
 
   function drawConnections(landmarks, mask, connections, kpOffset, color, lineWidth, tf) {
-    skelCtx.strokeStyle = color;
-    skelCtx.lineWidth   = lineWidth;
-    skelCtx.lineCap     = 'round';
+    skelCtx.strokeStyle = color; skelCtx.lineWidth = lineWidth; skelCtx.lineCap = 'round';
     for (const [a, b] of connections) {
       const pa = kpXY(landmarks, mask, kpOffset + a, tf);
       const pb = kpXY(landmarks, mask, kpOffset + b, tf);
       if (!pa || !pb) continue;
-      skelCtx.beginPath();
-      skelCtx.moveTo(pa.x, pa.y);
-      skelCtx.lineTo(pb.x, pb.y);
-      skelCtx.stroke();
+      skelCtx.beginPath(); skelCtx.moveTo(pa.x, pa.y); skelCtx.lineTo(pb.x, pb.y); skelCtx.stroke();
     }
   }
 
@@ -460,9 +419,7 @@
     for (let i = 0; i < count; i++) {
       const p = kpXY(landmarks, mask, kpOffset + i, tf);
       if (!p) continue;
-      skelCtx.beginPath();
-      skelCtx.arc(p.x, p.y, radius, 0, Math.PI * 2);
-      skelCtx.fill();
+      skelCtx.beginPath(); skelCtx.arc(p.x, p.y, radius, 0, Math.PI * 2); skelCtx.fill();
     }
   }
 
@@ -470,114 +427,70 @@
     skelCanvas.width  = skelCanvas.offsetWidth;
     skelCanvas.height = skelCanvas.offsetHeight;
     skelCtx.clearRect(0, 0, skelCanvas.width, skelCanvas.height);
-
     const tf = coverTransform();
-
-    // Pose (kp offset 0)
-    drawConnections(landmarks, mask, POSE_CONNECTIONS, 0, 'rgba(148,137,121,0.55)', 2, tf);
-    drawDots(landmarks, mask, 0, 25, 'rgba(148,137,121,0.7)', 3, tf);
-
-    // Left hand (kp offset 25)
-    drawConnections(landmarks, mask, HAND_CONNECTIONS, 25, 'rgba(76,175,130,0.85)', 2, tf);
-    drawDots(landmarks, mask, 25, 21, '#4caf82', 4, tf);
-
-    // Right hand (kp offset 46)
+    drawConnections(landmarks, mask, POSE_CONNECTIONS, 0,  'rgba(148,137,121,0.55)', 2, tf);
+    drawDots       (landmarks, mask, 0,  25, 'rgba(148,137,121,0.7)',  3, tf);
+    drawConnections(landmarks, mask, HAND_CONNECTIONS, 25, 'rgba(76,175,130,0.85)',  2, tf);
+    drawDots       (landmarks, mask, 25, 21, '#4caf82',                4, tf);
     drawConnections(landmarks, mask, HAND_CONNECTIONS, 46, 'rgba(223,208,184,0.85)', 2, tf);
-    drawDots(landmarks, mask, 46, 21, '#DFD0B8', 4, tf);
-
-    // Face (kp offset 67) — dots only
-    drawDots(landmarks, mask, 67, 22, 'rgba(148,137,121,0.5)', 2, tf);
+    drawDots       (landmarks, mask, 46, 21, '#DFD0B8',                4, tf);
+    drawDots       (landmarks, mask, 67, 22, 'rgba(148,137,121,0.5)',  2, tf);
   }
 
-  // ── UI updates ───────────────────────────────────────────────────────
-
+  // ── UI update ─────────────────────────────────────────────────────────
   function pct(v) { return Math.round(v * 100); }
 
   function clearPredictions() {
-    topLabel.textContent = '—';
-    topBadge.classList.add('hidden');
-    topConf.textContent  = '';
-    topBar.style.width   = '0%';
-    alt1Label.textContent = '—';
-    alt1Bar.style.width   = '0%';
-    alt1Conf.textContent  = '';
-    alt2Label.textContent = '—';
-    alt2Bar.style.width   = '0%';
-    alt2Conf.textContent  = '';
+    topLabel.textContent = '—'; topBadge.classList.add('hidden');
+    topConf.textContent = ''; topBar.style.width = '0%';
+    alt1Label.textContent = '—'; alt1Bar.style.width = '0%'; alt1Conf.textContent = '';
+    alt2Label.textContent = '—'; alt2Bar.style.width = '0%'; alt2Conf.textContent = '';
   }
 
   function updateUI(data) {
     const { predictions, buffered_frames, hands_detected, landmarks, landmark_mask } = data;
 
-    // Warmup bar
-    const progress = Math.min(buffered_frames / MIN_FRAMES, 1);
-    warmupBar.style.width = (progress * 100) + '%';
+    warmupBar.style.width = Math.min(buffered_frames / MIN_FRAMES, 1) * 100 + '%';
 
-    // Draw skeleton regardless of prediction state
-    if (landmarks && landmark_mask) {
-      drawSkeleton(landmarks, landmark_mask);
-    }
+    if (landmarks && landmark_mask) drawSkeleton(landmarks, landmark_mask);
+
+    updateDwell(predictions, hands_detected);
 
     if (!hands_detected) {
       warmupTxt.textContent = 'Show your hands to the camera…';
-      clearPredictions();
-      return;
+      clearPredictions(); return;
     }
-
     if (predictions.length === 0) {
       warmupTxt.textContent = `Warming up — ${buffered_frames}/${MIN_FRAMES} frames…`;
-      clearPredictions();
-      return;
+      clearPredictions(); return;
     }
 
-    // Hide warmup once we have real predictions
     warmupEl.classList.add('hidden');
 
     const [p0, p1, p2] = predictions;
-
     topLabel.textContent = p0.label;
-    topBadge.textContent = p0.category;
-    topBadge.classList.remove('hidden');
+    topBadge.textContent = p0.category; topBadge.classList.remove('hidden');
     topConf.textContent  = pct(p0.confidence) + '%';
     topBar.style.width   = pct(p0.confidence) + '%';
-
-    if (p1) {
-      alt1Label.textContent = p1.label;
-      alt1Conf.textContent  = pct(p1.confidence) + '%';
-      alt1Bar.style.width   = pct(p1.confidence) + '%';
-    }
-
-    if (p2) {
-      alt2Label.textContent = p2.label;
-      alt2Conf.textContent  = pct(p2.confidence) + '%';
-      alt2Bar.style.width   = pct(p2.confidence) + '%';
-    }
+    if (p1) { alt1Label.textContent = p1.label; alt1Conf.textContent = pct(p1.confidence)+'%'; alt1Bar.style.width = pct(p1.confidence)+'%'; }
+    if (p2) { alt2Label.textContent = p2.label; alt2Conf.textContent = pct(p2.confidence)+'%'; alt2Bar.style.width = pct(p2.confidence)+'%'; }
   }
 
-  // ── Polling ──────────────────────────────────────────────────────────
-
+  // ── Poll ──────────────────────────────────────────────────────────────
   async function poll() {
-    if (polling) return;
-    polling = true;
+    if (polling) return; polling = true;
     try {
       captureCtx.drawImage(cam, 0, 0, capture.width, capture.height);
       const frame = capture.toDataURL('image/jpeg', JPEG_Q);
-      const res   = await fetch('/predict', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch('/predict', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ frame }),
       });
-      if (!res.ok) return;
-      updateUI(await res.json());
-    } catch (_) {
-      // network blip — next tick retries
-    } finally {
-      polling = false;
-    }
+      if (res.ok) updateUI(await res.json());
+    } catch (_) { /* network blip */ } finally { polling = false; }
   }
 
-  // ── Camera init ──────────────────────────────────────────────────────
-
+  // ── Camera init ───────────────────────────────────────────────────────
   async function startCamera() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
@@ -587,10 +500,7 @@
         capture.height = cam.videoHeight || 480;
         setInterval(poll, POLL_MS);
       };
-    } catch (e) {
-      noCam.classList.add('visible');
-      console.error('Camera error:', e);
-    }
+    } catch (e) { noCam.classList.add('visible'); }
   }
 
   startCamera();
