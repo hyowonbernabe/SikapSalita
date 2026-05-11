@@ -418,21 +418,35 @@
 
   // ── Skeleton drawing ─────────────────────────────────────────────────
 
-  function kpXY(landmarks, mask, kpIdx) {
-    // Returns {x, y} in skeleton canvas pixels, or null if not detected
-    if (!mask[kpIdx]) return null;
-    const cx = landmarks[kpIdx * 2];
-    const cy = landmarks[kpIdx * 2 + 1];
-    return { x: cx * skelCanvas.width, y: cy * skelCanvas.height };
+  // Compute the object-fit:cover viewport so skeleton coords map to the
+  // same pixels the video actually renders on screen.
+  function coverTransform() {
+    const cw = skelCanvas.width,  ch = skelCanvas.height;
+    const vw = cam.videoWidth  || cw;
+    const vh = cam.videoHeight || ch;
+    const scale = Math.max(cw / vw, ch / vh);
+    const dw = vw * scale, dh = vh * scale;
+    return { offX: (cw - dw) / 2, offY: (ch - dh) / 2, dw, dh };
   }
 
-  function drawConnections(landmarks, mask, connections, kpOffset, color, lineWidth) {
+  function kpXY(landmarks, mask, kpIdx, tf) {
+    // Returns {x, y} in skeleton canvas pixels, or null if not detected
+    if (!mask[kpIdx]) return null;
+    const nx = landmarks[kpIdx * 2];
+    const ny = landmarks[kpIdx * 2 + 1];
+    return {
+      x: tf.offX + nx * tf.dw,
+      y: tf.offY + ny * tf.dh,
+    };
+  }
+
+  function drawConnections(landmarks, mask, connections, kpOffset, color, lineWidth, tf) {
     skelCtx.strokeStyle = color;
     skelCtx.lineWidth   = lineWidth;
     skelCtx.lineCap     = 'round';
     for (const [a, b] of connections) {
-      const pa = kpXY(landmarks, mask, kpOffset + a);
-      const pb = kpXY(landmarks, mask, kpOffset + b);
+      const pa = kpXY(landmarks, mask, kpOffset + a, tf);
+      const pb = kpXY(landmarks, mask, kpOffset + b, tf);
       if (!pa || !pb) continue;
       skelCtx.beginPath();
       skelCtx.moveTo(pa.x, pa.y);
@@ -441,10 +455,10 @@
     }
   }
 
-  function drawDots(landmarks, mask, kpOffset, count, color, radius) {
+  function drawDots(landmarks, mask, kpOffset, count, color, radius, tf) {
     skelCtx.fillStyle = color;
     for (let i = 0; i < count; i++) {
-      const p = kpXY(landmarks, mask, kpOffset + i);
+      const p = kpXY(landmarks, mask, kpOffset + i, tf);
       if (!p) continue;
       skelCtx.beginPath();
       skelCtx.arc(p.x, p.y, radius, 0, Math.PI * 2);
@@ -457,20 +471,22 @@
     skelCanvas.height = skelCanvas.offsetHeight;
     skelCtx.clearRect(0, 0, skelCanvas.width, skelCanvas.height);
 
+    const tf = coverTransform();
+
     // Pose (kp offset 0)
-    drawConnections(landmarks, mask, POSE_CONNECTIONS, 0, 'rgba(148,137,121,0.55)', 2);
-    drawDots(landmarks, mask, 0, 25, 'rgba(148,137,121,0.7)', 3);
+    drawConnections(landmarks, mask, POSE_CONNECTIONS, 0, 'rgba(148,137,121,0.55)', 2, tf);
+    drawDots(landmarks, mask, 0, 25, 'rgba(148,137,121,0.7)', 3, tf);
 
     // Left hand (kp offset 25)
-    drawConnections(landmarks, mask, HAND_CONNECTIONS, 25, 'rgba(76,175,130,0.85)', 2);
-    drawDots(landmarks, mask, 25, 21, '#4caf82', 4);
+    drawConnections(landmarks, mask, HAND_CONNECTIONS, 25, 'rgba(76,175,130,0.85)', 2, tf);
+    drawDots(landmarks, mask, 25, 21, '#4caf82', 4, tf);
 
     // Right hand (kp offset 46)
-    drawConnections(landmarks, mask, HAND_CONNECTIONS, 46, 'rgba(223,208,184,0.85)', 2);
-    drawDots(landmarks, mask, 46, 21, '#DFD0B8', 4);
+    drawConnections(landmarks, mask, HAND_CONNECTIONS, 46, 'rgba(223,208,184,0.85)', 2, tf);
+    drawDots(landmarks, mask, 46, 21, '#DFD0B8', 4, tf);
 
     // Face (kp offset 67) — dots only
-    drawDots(landmarks, mask, 67, 22, 'rgba(148,137,121,0.5)', 2);
+    drawDots(landmarks, mask, 67, 22, 'rgba(148,137,121,0.5)', 2, tf);
   }
 
   // ── UI updates ───────────────────────────────────────────────────────
