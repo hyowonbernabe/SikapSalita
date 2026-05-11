@@ -8,10 +8,13 @@ file processing parameters, UI styling, and default values.
 from pathlib import Path
 from typing import Dict, Any
 
+# Project root resolved from this file's location (streamlit_app/core/config.py → ../../)
+_PROJECT_ROOT = Path(__file__).parent.parent.parent
+
 # Page configuration
 PAGE_CONFIG = {
     'page_title': 'PANSINAYAN',
-    'page_icon': 'Pansinayan Icon.svg',
+    'page_icon': str(_PROJECT_ROOT / 'Pansinayan Icon.svg'),
     'layout': 'wide',
     'initial_sidebar_state': 'expanded'
 }
@@ -40,7 +43,7 @@ CTC_CONFIG_SUBSET = {
 MODEL_CONFIG = {
     'transformer_isolated': {
         'enabled': True,
-        'checkpoint_path': 'trained_models/transformer/FSL105_classification/SignTransformer_best.pt',
+        'checkpoint_path': str(_PROJECT_ROOT / 'trained_models/transformer/FSL105_classification/SignTransformer_best.pt'),
         'model_type': 'transformer_isolated',
         'num_gloss_classes': 105,
         'num_category_classes': 10,
@@ -52,7 +55,7 @@ MODEL_CONFIG = {
     },
     'transformer_continuous': {
         'enabled': True,  # Enabled for continuous sign recognition
-        'checkpoint_path': 'trained_models/transformer/FSL105_ctc/SignTransformerCtc_best.pt',
+        'checkpoint_path': str(_PROJECT_ROOT / 'trained_models/transformer/FSL105_ctc/SignTransformerCtc_best.pt'),
         'model_type': 'transformer_continuous',
         'num_gloss_classes': 105,
         'num_ctc_classes': 106,
@@ -66,7 +69,7 @@ MODEL_CONFIG = {
     },
     'iv3_gru_isolated': {
         'enabled': True,
-        'checkpoint_path': 'trained_models/iv3_gru/FSL105_classification/InceptionV3GRU_best.pt',
+        'checkpoint_path': str(_PROJECT_ROOT / 'trained_models/iv3_gru/FSL105_classification/InceptionV3GRU_best.pt'),
         'model_type': 'iv3_gru_isolated',
         'num_gloss_classes': 105,
         'num_category_classes': 10,
@@ -78,7 +81,7 @@ MODEL_CONFIG = {
     },
     'iv3_gru_continuous': {
         'enabled': True,  # Enabled for continuous sign recognition
-        'checkpoint_path': 'trained_models/iv3_gru/FSL105_ctc/InceptionV3GRUCtc_best.pt',
+        'checkpoint_path': str(_PROJECT_ROOT / 'trained_models/iv3_gru/FSL105_ctc/InceptionV3GRUCtc_best.pt'),
         'model_type': 'iv3_gru_continuous',
         'num_gloss_classes': 105,
         'num_ctc_classes': 106,
@@ -92,7 +95,7 @@ MODEL_CONFIG = {
     },
     'mediapipe_gru_isolated': {
         'enabled': False,  # TODO: REMOVE THIS - Hidden from Streamlit app, only transformer and iv3 remain visible
-        'checkpoint_path': 'trained_models/mediapipe_gru/FSL105_classification/MediaPipeGRU_best.pt',
+        'checkpoint_path': str(_PROJECT_ROOT / 'trained_models/mediapipe_gru/FSL105_classification/MediaPipeGRU_best.pt'),
         'model_type': 'mediapipe_gru_isolated',
         'num_gloss_classes': 105,
         'num_category_classes': 10,
@@ -104,7 +107,7 @@ MODEL_CONFIG = {
     },
     'mediapipe_gru_continuous': {
         'enabled': False,  # TODO: REMOVE THIS - Hidden from Streamlit app, only transformer and iv3 remain visible
-        'checkpoint_path': 'trained_models/mediapipe_gru/FSL105_ctc/MediaPipeGRUCtc_best.pt',
+        'checkpoint_path': str(_PROJECT_ROOT / 'trained_models/mediapipe_gru/FSL105_ctc/MediaPipeGRUCtc_best.pt'),
         'model_type': 'mediapipe_gru_continuous',
         'num_gloss_classes': 105,
         'num_ctc_classes': 106,
