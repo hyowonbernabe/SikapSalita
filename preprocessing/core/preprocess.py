@@ -1,7 +1,7 @@
 """
 Unified video preprocessing pipeline for Filipino sign language recognition.
 
-Processes raw video files to extract MediaPipe keypoints, InceptionV3 features,
+Processes raw video files to extract MediaPipe keypoints, MediaPipe Holistic landmarks,
 occlusion detection flags, and metadata.
 """
 
@@ -231,7 +231,7 @@ def process_video(video_path, out_dir, target_fps=30, out_size=256, conf_thresh=
         conf_thresh: Confidence threshold for keypoint detection (0.0-1.0, default=0.35)
         max_gap: Maximum gap size for interpolation (frames, default=5)
         write_keypoints: Extract MediaPipe keypoints (178D vectors per frame)
-        write_iv3_features: Extract InceptionV3 features (2048D vectors per frame)
+        write_iv3_features: Extract MediaPipe Holistic landmarks (2048D vectors per frame)
         feature_key: Unused parameter (kept for compatibility)
         compute_occlusion: Enable occlusion detection for quality filtering
         occ_detailed: Return detailed occlusion analysis results
@@ -317,7 +317,7 @@ def process_video(video_path, out_dir, target_fps=30, out_size=256, conf_thresh=
 
             # STEP 4e: Extract InceptionV3 CNN features
             if write_iv3_features:
-                # Extract 2048-D InceptionV3 features from the original BGR frame (not segmented)
+                # Extract 2048-D MediaPipe Holistic landmarks from the original BGR frame (not segmented)
                 # Uses full frame to capture contextual information for CNN
                 iv3_features = extract_iv3_features(frame_bgr, image_size=(299, 299), device=device)
                 X2048_frames.append(iv3_features)
@@ -357,7 +357,7 @@ def process_video(video_path, out_dir, target_fps=30, out_size=256, conf_thresh=
     # Ensure keypoint coordinates stay within valid bounds [0, 1]
     X_filled = np.clip(X_filled, 0.0, 1.0).astype(np.float32)
     
-    # STEP 7b: Process InceptionV3 features
+    # STEP 7b: Process MediaPipe Holistic landmarks
     if write_iv3_features:
         if len(X2048_frames) == 0:
             print(f"[WARN] No IV3 feature frames written for {video_path}")
@@ -442,7 +442,7 @@ def process_video(video_path, out_dir, target_fps=30, out_size=256, conf_thresh=
         'meta': json.dumps(meta)          # Processing metadata as JSON string
     }
     
-    # Add InceptionV3 features if they were extracted
+    # Add MediaPipe Holistic landmarks if they were extracted
     if write_iv3_features and X2048_filled is not None:
         save_dict.update({'X2048': X2048_filled})  # CNN features [T, 2048]
     
@@ -684,7 +684,7 @@ def process_videos_multiprocess(video_files, out_dir, target_fps=30, out_size=25
         conf_thresh: Confidence threshold for keypoint detection (0.0-1.0, default=0.35)
         max_gap: Maximum gap size for keypoint interpolation (frames, default=5)
         write_keypoints: Extract MediaPipe keypoints (178D vectors per frame)
-        write_iv3_features: Extract InceptionV3 features (2048D vectors per frame)
+        write_iv3_features: Extract MediaPipe Holistic landmarks (2048D vectors per frame)
         feature_key: Unused parameter (kept for compatibility)
         compute_occlusion: Enable occlusion detection for quality filtering
         occ_detailed: Return detailed occlusion analysis results

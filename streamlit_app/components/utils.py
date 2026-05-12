@@ -224,7 +224,7 @@ def check_npz_compatibility(npz_data: Dict[str, np.ndarray], model_configs: Dict
                         compatibility['transformer'] = True
             
             elif model_name == 'iv3_gru_isolated':
-                # IV3-GRU always needs 2048-D features
+                # Bi-LSTM always needs 2048-D features
                 if supports_features and features_valid:
                     compatibility['iv3_gru'] = True
             

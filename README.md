@@ -1,28 +1,38 @@
-# PANSINAYAN
+# Sikap-Salita
 
-### _Where Every Sign Gets Attention_
+**A General-Purpose Filipino Sign Language (FSL) to Text-to-Speech Communicator**
 
-**Filipino Sign Language Recognition System**
-
-PANSINAYAN is a comprehensive deep learning system for Filipino Sign Language (FSL) recognition, comparing Multi-Head Attention Transformer and InceptionV3-GRU architectures. The system supports both isolated sign classification and continuous sign sequence recognition using CTC decoding.
+Sikap-Salita is a comprehensive deep learning system for Filipino Sign Language (FSL) recognition, comparing Siformer and Bi-LSTM architectures. The system supports both isolated sign classification and continuous sign sequence recognition using CTC decoding.
 
 **Key Features:**
-- Dual architecture comparison (Transformer vs InceptionV3-GRU)
+- Dual architecture comparison (Siformer vs Bi-LSTM)
 - Isolated sign classification (105 gloss classes, 10 categories)
 - Continuous sign recognition with CTC decoding
-- Interactive web interface (PANSINAYAN Streamlit app)
+- Interactive live demo (Sikap-Salita live demo, FastAPI + browser frontend)
 - Comprehensive preprocessing pipeline with occlusion detection
 - Model training, validation, and evaluation tools
 
+## Authors
+
+- Hyowon Azril Bernabe
+- Darren Caguioa
+- Krenz Darrel Casilen
+- Princess Kyla Rose Ferrer
+- Aldyn Zandrex Lawagan
+- Jazreil Jaron Sabog
+- Keziah Mae Tingga-an
+
+Saint Louis University, Baguio City, Philippines
+
 ## Overview
 
-PANSINAYAN provides a complete pipeline for Filipino Sign Language Recognition:
+Sikap-Salita provides a complete pipeline for Filipino Sign Language Recognition:
 
-1. **Preprocessing**: Extract MediaPipe keypoints (178-D) and InceptionV3 features (2048-D) from raw videos
-2. **Training**: Train Transformer or InceptionV3-GRU models for isolated or continuous sign recognition
+1. **Preprocessing**: Extract MediaPipe Holistic landmarks (225-D, 75 keypoints × 3 coordinates) from raw videos
+2. **Training**: Train Siformer or Bi-LSTM models for isolated or continuous sign recognition
 3. **Evaluation**: Validate models and analyze performance metrics
 4. **Inference**: Predict signs from videos or preprocessed NPZ files
-5. **Visualization**: Interactive web interface for model comparison and analysis
+5. **Visualization**: Interactive live demo for model comparison and analysis
 
 The system supports both **isolated sign recognition** (classification) and **continuous sign recognition** (CTC-based sequence-to-sequence).
 
@@ -30,8 +40,8 @@ The system supports both **isolated sign recognition** (classification) and **co
 
 - **Glosses**: 105 Filipino sign words (IDs: 0-104)
 - **Categories**: 10 semantic categories (IDs: 0-9): Greeting, Survival, Number, Calendar, Days, Family, Relationships, Color, Food, Drink
-- **Training Data**: FSL-105 dataset
-- **Models**: Pre-trained Transformer and IV3-GRU models available (see [Trained Models Guide](trained_models/TRAINED_MODEL_GUIDE.md))
+- **Training Data**: FSL-105 dataset (105 signs, 2,130 clips)
+- **Models**: Pre-trained Siformer and Bi-LSTM models available (see [Trained Models Guide](trained_models/TRAINED_MODEL_GUIDE.md))
 
 **Model Setup**: Model checkpoints must be placed in `trained_models/transformer/` and `trained_models/iv3_gru/` directories following the structure defined in the README.txt files in those directories. See [Trained Models Guide](trained_models/TRAINED_MODEL_GUIDE.md) for details.
 
@@ -63,20 +73,24 @@ pip install -r requirements.txt
 pip install pyarrow  # optional, for parquet inspection
 ```
 
-### Interactive Demo with PANSINAYAN
+### Interactive Demo with Sikap-Salita
 
 ```powershell
-# Run the PANSINAYAN application
-streamlit run run_app.py
+# Run the Sikap-Salita live demo
+python run_app.py
 ```
 
-**PANSINAYAN Features**:
+The app will be available at `http://localhost:8000`.
+
+**Sikap-Salita Live Demo Features**:
 
 - Animated keypoint visualization with attention mechanism
 - Real-time predictions for 105 Filipino sign words
 - Support for both preprocessed `.npz` files and raw videos
-- Dual model comparison (Transformer vs IV3-GRU)
+- Dual model comparison (Siformer vs Bi-LSTM)
 - Occlusion-aware analysis and validation
+- Filipino-to-English translation via Facebook NLLB-200 (600M)
+- Text-to-speech output via Qwen3-TTS 0.6B
 
 ### Quick Prediction
 
@@ -137,9 +151,11 @@ fslr-transformer-vs-iv3gru/
 │       ├── validate.py         # Classification validation
 │       ├── evaluate_ctc.py     # CTC evaluation
 │       └── VALIDATION_GUIDE.md
+├── live_demo/                  # FastAPI live demo application
+│   └── static/                 # Main Sikap-Salita project directory
 ├── models/                     # Neural network architectures
-│   ├── transformer.py         # SignTransformer (keypoints)
-│   ├── iv3_gru.py             # InceptionV3GRU (features)
+│   ├── transformer.py         # Siformer (feature-isolated transformer)
+│   ├── iv3_gru.py             # Bi-LSTM (bidirectional LSTM baseline)
 │   └── MODEL_GUIDE.md         # Architecture documentation
 ├── preprocessing/              # Video preprocessing and feature extraction
 │   ├── core/                   # Core preprocessing modules
@@ -154,17 +170,12 @@ fslr-transformer-vs-iv3gru/
 │   │   ├── OCCLUSION_GUIDE.md
 │   │   └── OCCLUSION_PARAMETERS_GUIDE.md
 │   └── utils/                 # Preprocessing utilities
-├── streamlit_app/             # Interactive web application
-│   ├── core/                  # Application core
-│   ├── components/            # UI components
-│   ├── manager/               # Workflow managers
-│   └── TOOL_GUIDE.md         # Application documentation
 ├── trained_models/            # Model checkpoints and weights
-│   ├── transformer/          # Transformer model checkpoints
+│   ├── transformer/          # Siformer model checkpoints
 │   │   ├── FSL105_classification/  # Classification models
 │   │   ├── FSL105_ctc/             # CTC models
 │   │   └── README.txt              # Setup instructions
-│   ├── iv3_gru/               # InceptionV3-GRU model checkpoints
+│   ├── iv3_gru/               # Bi-LSTM model checkpoints
 │   │   ├── FSL105_classification/  # Classification models
 │   │   ├── FSL105_ctc/             # CTC models
 │   │   └── README.txt              # Setup instructions
@@ -173,7 +184,7 @@ fslr-transformer-vs-iv3gru/
 │   ├── train.py               # Training script
 │   ├── utils.py               # Training utilities
 │   └── TRAINING_GUIDE.md      # Training documentation
-├── run_app.py                 # Streamlit app launcher
+├── run_app.py                 # Live demo launcher (uvicorn, port 8000)
 └── README.md                  # This file
 ```
 
@@ -208,9 +219,9 @@ python -m preprocessing.core.preprocess ^
 
 **Output**: `.npz` files with:
 
-- Keypoints `X [T,178]` - 89 MediaPipe keypoints (pose, hands, face)
-- Features `X2048 [T,2048]` - InceptionV3 features
-- Visibility mask `mask [T,89]`
+- Keypoints `X [T,225]` - 75 MediaPipe Holistic keypoints × 3 coordinates (pose, hands, face)
+- Features `X2048 [T,2048]` - additional visual features
+- Visibility mask `mask [T,75]`
 - Timestamps `timestamps_ms [T]`
 - Metadata with occlusion detection
 
@@ -241,7 +252,7 @@ For detailed data splitting instructions, see [Data Guide](data/DATA_GUIDE.md).
 
 ### 3. Training
 
-**Transformer Model (Keypoints):**
+**Siformer Model (Keypoints):**
 
 ```powershell
 python -m training.train ^
@@ -259,7 +270,7 @@ python -m training.train ^
   --auto-batch-size
 ```
 
-**IV3-GRU Model (InceptionV3 Features):**
+**Bi-LSTM Model:**
 
 ```powershell
 python -m training.train ^
@@ -285,10 +296,10 @@ For detailed training instructions, see [Training Guide](training/TRAINING_GUIDE
 Train models for continuous sign recognition using CTC (no frame-level alignment needed).
 
 ```powershell
-# SignTransformerCtc
+# SiformerCtc
 python training/train.py --model transformer_continuous --keypoints-train data\processed\FSL105_train --keypoints-val data\processed\FSL105_val --labels-train-csv data\processed\FSL105_train.csv --labels-val-csv data\processed\FSL105_val.csv --epochs 100 --grad-clip 1.0 --amp
 
-# InceptionV3GRUCtc
+# Bi-LSTMCtc
 python training/train.py --model iv3_gru_continuous --features-train data\processed\FSL105_train --features-val data\processed\FSL105_val --labels-train-csv data\processed\FSL105_train.csv --labels-val-csv data\processed\FSL105_val.csv --feature-key X2048 --epochs 100 --grad-clip 1.0 --amp
 ```
 
@@ -307,14 +318,14 @@ python -m preprocessing.utils.validate_npz data\processed\FSL105_val --require-x
 **Model Validation:**
 
 ```powershell
-# Transformer model
+# Siformer model
 python -m evaluation.validation.validate ^
   --model transformer_isolated ^
   --checkpoint trained_models\transformer\FSL105_classification\SignTransformer_best.pt ^
   --data-dir data\processed\FSL105_val ^
   --labels-csv data\processed\FSL105_val.csv
 
-# IV3-GRU model
+# Bi-LSTM model
 python -m evaluation.validation.validate ^
   --model iv3_gru_isolated ^
   --checkpoint trained_models\iv3_gru\FSL105_classification\InceptionV3GRU_best.pt ^
@@ -351,42 +362,42 @@ See [Prediction Guide](evaluation/prediction/PREDICTION_GUIDE.md#ctc-prediction-
 
 ### Classification Models (Isolated Sign Recognition)
 
-#### Transformer (SignTransformer)
+#### Siformer (Feature-Isolated Transformer)
 
-- **Input**: MediaPipe keypoints [T, 178]
-- **Architecture**: Multi-head attention with positional encoding
-- **Advantages**: Lighter, interpretable attention weights
+- **Input**: MediaPipe Holistic landmarks (225-D, 75 keypoints × 3 coordinates)
+- **Architecture**: Feature-isolated multi-head attention with positional encoding
+- **Advantages**: Lighter, interpretable attention weights, isolates pose/hand/face streams
 - **Best for**: Keypoint-based sign recognition
 
-#### InceptionV3-GRU
+#### Bi-LSTM (Bidirectional LSTM Baseline)
 
-- **Input**: InceptionV3 features [T, 2048]
-- **Architecture**: CNN + GRU with pretrained backbone
-- **Advantages**: Transfer learning from ImageNet
-- **Best for**: Visual feature-based recognition
+- **Input**: Sequential landmark features
+- **Architecture**: Bidirectional LSTM layers
+- **Advantages**: Strong sequence modeling, established baseline
+- **Best for**: Temporal sign sequence recognition
 
 Classification models predict:
 
 - **Gloss**: Specific sign word (105 classes)
 - **Category**: Semantic category (10 classes)
 
-### CTC Models (Continuous Sign Language Recognition) 🆕
+### CTC Models (Continuous Sign Language Recognition)
 
-#### SignTransformerCtc
+#### SiformerCtc
 
-- **Input**: MediaPipe keypoints [T, 178]
+- **Input**: MediaPipe Holistic landmarks (225-D)
 - **Output**: Gloss sequences (variable length)
-- **Architecture**: Transformer encoder + CTC head
+- **Architecture**: Siformer encoder + CTC head
 - **Advantages**: No frame-level alignment required, attention-based
 - **Best for**: Continuous sign recognition
 
-#### InceptionV3GRUCtc
+#### Bi-LSTMCtc
 
-- **Input**: InceptionV3 features [T, 2048]
+- **Input**: Sequential landmark features
 - **Output**: Gloss sequences (variable length)
-- **Architecture**: CNN + GRU + CTC head
-- **Advantages**: Transfer learning benefits, visual features
-- **Best for**: Continuous recognition with visual features
+- **Architecture**: Bi-LSTM + CTC head
+- **Advantages**: Strong baseline for sequence-to-sequence decoding
+- **Best for**: Continuous recognition baseline
 
 **CTC Features:**
 
@@ -405,7 +416,6 @@ For architecture details, see [Model Guide](models/MODEL_GUIDE.md).
 - **[Validation Guide](evaluation/validation/VALIDATION_GUIDE.md)** - Model validation and evaluation (classification & CTC)
 - **[Label Mapping Table](data/labels/LABEL_MAPPING_TABLE.md)** - Complete list of signs and categories
 - **[Trained Models Guide](trained_models/TRAINED_MODEL_GUIDE.md)** - Model checkpoints and usage
-- **[Tool Guide](streamlit_app/TOOL_GUIDE.md)** - Interactive visualization app
 
 ### Development & Training
 
@@ -428,8 +438,8 @@ For architecture details, see [Model Guide](models/MODEL_GUIDE.md).
 
 **Wrong shapes:**
 
-- Transformer needs `X [T,178]` keypoints
-- IV3-GRU needs `X2048 [T,2048]` InceptionV3 features
+- Siformer needs `X [T,225]` MediaPipe Holistic landmarks (75 keypoints × 3)
+- Bi-LSTM needs sequential landmark features
 
 **Label ranges:**
 
@@ -438,7 +448,7 @@ For architecture details, see [Model Guide](models/MODEL_GUIDE.md).
 
 **Port conflicts:**
 
-- Use `streamlit run run_app.py --server.port 8502` for alternative port
+- Use `uvicorn live_demo.app:app --port 8001` for alternative port
 
 **CUDA issues:**
 
@@ -455,24 +465,20 @@ For architecture details, see [Model Guide](models/MODEL_GUIDE.md).
 
 **Problem**: Video uploads from mobile camera fail (6-10MB+), but gallery uploads work.
 
-**Root Cause**: Default Streamlit upload size limit and mobile-specific WebSocket constraints.
+**Root Cause**: Default upload size limit and mobile-specific WebSocket constraints.
 
-**Solution**: Configuration has been updated in `.streamlit/config.toml`:
+**Solution**: Configuration has been updated in the FastAPI app settings:
 
-- `maxUploadSize = 500` MB (increased from 200MB default)
-- `maxMessageSize = 500` MB (matches upload size)
+- Increased upload size limits
 - `enableCORS = true` (mobile browser compatibility)
-- `enableWebsocketCompression = true` (better mobile network performance)
 
 **After deploying these changes:**
 
-1. Restart the Streamlit app
+1. Restart the live demo app
 2. Test on actual mobile devices (iOS Safari, Android Chrome)
 
 **For deployment platforms:**
 
-- **Streamlit Cloud**: Automatically reads config from repository
-- **Heroku/Railway**: May need additional platform configuration
 - **Self-hosted**: Check nginx/Apache upload limits
 
 ### Performance Tips
@@ -500,7 +506,15 @@ For architecture details, see [Model Guide](models/MODEL_GUIDE.md).
 ### Local Development
 
 ```powershell
-streamlit run run_app.py
+python run_app.py
+```
+
+The app runs at `http://localhost:8000` by default.
+
+### Custom Port
+
+```powershell
+uvicorn live_demo.app:app --port 8001
 ```
 
 ### Vast.ai Deployment
@@ -509,22 +523,22 @@ For remote deployment on Vast.ai instances, see [Vast.ai Guide](shared/for vast 
 
 ## Contributing
 
-PANSINAYAN supports Filipino Sign Language Recognition research and accessibility initiatives.
+Sikap-Salita supports Filipino Sign Language Recognition research and accessibility initiatives.
 
 ## License
 
-This project is part of academic research in Filipino Sign Language Recognition.
+This project is part of academic research in Filipino Sign Language Recognition at Saint Louis University, Baguio City, Philippines.
 
 ## Citation
 
-If you use PANSINAYAN in your research, please cite:
+If you use Sikap-Salita in your research, please cite:
 
 ```bibtex
-@thesis{pansinayan2025,
-  title={PANSINAYAN: Multi-Head Attention Transformer for Filipino Sign Language Recognition},
-  author={Estrella, Novelle Lyn and Magtibay, Nathaniel L. and Migueh, Rica Joi C. and Pablo, Jeremias G.},
+@thesis{sikapSalita2025,
+  title={Sikap-Salita: A General-Purpose Filipino Sign Language (FSL) to Text-to-Speech Communicator},
+  author={Bernabe, Hyowon Azril and Caguioa, Darren and Casilen, Krenz Darrel and Ferrer, Princess Kyla Rose and Lawagan, Aldyn Zandrex and Sabog, Jazreil Jaron and Tingga-an, Keziah Mae},
   year={2025},
-  school={Polytechnic University of the Philippines}
+  school={Saint Louis University, Baguio City, Philippines}
 }
 ```
 

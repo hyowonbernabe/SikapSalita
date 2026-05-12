@@ -2,7 +2,7 @@
 Sikap-Salita live demo FastAPI server.
 
 Start with:
-    cd scratch/PANSINAYAN
+    cd "c:/Projects/Sikap Salita"
     .venv/Scripts/python -m uvicorn live_demo.app:app --host 0.0.0.0 --port 8000
 """
 

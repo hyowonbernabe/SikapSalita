@@ -7,7 +7,7 @@ Convert raw videos to `.npz` files for model training and inference.
 Extracts features from sign language videos:
 
 - **Keypoints** (`X`): MediaPipe keypoints `[T, 178]` - pose, hands, face
-- **CNN Features** (`X2048`): InceptionV3 features `[T, 2048]`
+- **CNN Features** (`X2048`): MediaPipe Holistic landmarks `[T, 2048]`
 - **Metadata**: Visibility masks, timestamps, occlusion flags
 
 **Performance**: Parallel processing provides 30-50x speedup.
@@ -175,7 +175,7 @@ python -m preprocessing.core.preprocess ^
 Each `.npz` file contains:
 
 - `X`: `[T, 178]` - MediaPipe keypoints (normalized to [0, 1])
-- `X2048`: `[T, 2048]` - InceptionV3 features
+- `X2048`: `[T, 2048]` - MediaPipe Holistic landmarks
 - `mask`: `[T, 89]` - Keypoint visibility (boolean)
 - `timestamps_ms`: `[T]` - Frame timestamps (milliseconds)
 - `meta`: JSON metadata (FPS, dimensions, occlusion flag)

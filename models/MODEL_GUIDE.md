@@ -1,21 +1,21 @@
 # Model Guide
 
-Technical documentation for Filipino Sign Language Recognition model architectures.
+Technical documentation for Filipino Sign Language Recognition model architectures used in Sikap-Salita.
 
 ## Overview
 
-The codebase provides two main architectures with both classification and CTC variants:
+The Sikap-Salita codebase provides two main architectures with both classification and CTC variants. Feature extraction uses **MediaPipe Holistic** (75 landmarks, 225 values/frame), not CNN-based image features.
 
 **Classification Models** (Isolated Sign Recognition):
 
-- **SignTransformer**: Attention-based encoder for keypoint sequences
-- **InceptionV3GRU**: CNN-RNN hybrid for visual features
+- **SignTransformer** (Siformer): Attention-based encoder for keypoint sequences
+- **InceptionV3GRU** (Bi-LSTM baseline): RNN architecture for temporal sequence modeling
 - Both output `(gloss_logits, category_logits)` for 105 glosses and 10 categories
 
 **CTC Models** (Continuous Sign Recognition):
 
 - **SignTransformerCtc**: Transformer encoder with CTC head for sequence-to-sequence recognition
-- **InceptionV3GRUCtc**: CNN-RNN hybrid with CTC head for continuous recognition
+- **InceptionV3GRUCtc**: RNN-based model with CTC head for continuous recognition
 - Both output log probabilities `[B, T, 106]` for variable-length gloss sequences
 
 ---
@@ -272,7 +272,7 @@ Both receive same pooled representation, enabling multi-task learning.
 
 ## InceptionV3GRU
 
-Hybrid CNN-RNN architecture combining pretrained visual features with temporal modeling.
+Bi-LSTM baseline architecture for temporal modeling of MediaPipe Holistic keypoint sequences.
 
 ### Architecture Flow
 
@@ -351,36 +351,21 @@ def predict_proba(frames_or_feats, lengths=None, features_already=False):
 
 ### Components
 
-#### 1. InceptionV3 Feature Extractor
+#### 1. MediaPipe Holistic Feature Input
 
-**Class**: `InceptionV3FeatureExtractor(pretrained=True, freeze=True)`
+Input features are extracted offline using **MediaPipe Holistic** (75 landmarks, 225 values/frame) rather than a CNN backbone. These precomputed keypoint sequences are loaded directly from `.npz` files and fed into the GRU layers.
 
-Pretrained CNN backbone (ImageNet weights):
+- Landmark count: 75 (pose + hands + face subset)
+- Feature vector per frame: 225 values (x, y, z per landmark)
+- No CNN processing at inference time
 
-- 48 convolutional layers
-- ~23.8M parameters
-- Input: 256×256 RGB
-- Output: 2048-D feature vector per frame
-
-**Freezing behavior**:
-
-```python
-if freeze:
-    for param in self.backbone.parameters():
-        param.requires_grad = False
-    self.backbone.eval()  # Fix BatchNorm statistics
-```
-
-Frozen backbone enables transfer learning while reducing training time.
-
-**Feature extraction**:
+**Feature loading**:
 
 ```python
 def forward(x):
-    # x: [N, 3, H, W]
-    # Parallel convolutions at multiple scales (Inception modules)
-    # Final layer removed, returns raw features
-    return self.backbone(x)  # [N, 2048]
+    # x: [N, T, 2048] precomputed feature tensor loaded from NPZ
+    # No CNN backbone — features already extracted via MediaPipe Holistic
+    return self.gru_layers(x)
 ```
 
 #### 2. Two-Layer GRU
@@ -473,23 +458,23 @@ self.category_head = nn.Linear(hidden2, num_cat)     # 12 → 10
 
 ### Design Decisions
 
-**Why InceptionV3-GRU?**
+**Why Bi-LSTM baseline (InceptionV3GRU)?**
 
-- Pretrained visual features provide strong baseline
-- Transfer learning from ImageNet
-- Efficient with precomputed features
-- Standard baseline for comparison
+- Provides a strong recurrent baseline for comparison against the Siformer
+- Precomputed MediaPipe Holistic features enable efficient training
+- Sequential temporal modeling captures sign motion dynamics
+- Standard RNN baseline for sign language recognition benchmarks
 
-**Why freeze backbone?**
+**Why MediaPipe Holistic features?**
 
-- Reduces parameters from ~25M to ~50K trainable
-- Faster training convergence
-- Prevents overfitting on small dataset
-- Transfer learning principle: keep pretrained features
+- Lightweight extraction — no heavy CNN needed at runtime
+- 75 landmarks cover hands, pose, and face for full-body signing
+- Precomputed offline, reducing training and inference overhead
+- Consistent landmark representation across signers
 
 **Why small GRU hidden sizes (16, 12)?**
 
-- Precomputed features already contain rich information
+- Precomputed features already contain rich spatial information
 - Small sizes prevent overfitting
 - Faster training and inference
 - Sufficient capacity for 105-class problem
@@ -504,30 +489,32 @@ self.category_head = nn.Linear(hidden2, num_cat)     # 12 → 10
 
 ## Model Comparison
 
-| Aspect            | SignTransformer     | InceptionV3GRU           |
-| ----------------- | ------------------- | ------------------------ |
-| **Input**         | Keypoints [T, 178]  | Features [T, 2048]       |
-| **Architecture**  | Attention encoder   | CNN + RNN                |
-| **Context**       | Global (parallel)   | Local (sequential)       |
-| **Pretrained**    | No                  | Yes (ImageNet)           |
-| **Parameters**    | ~2M                 | ~25M (50K trainable)     |
-| **Memory**        | Lower               | Higher                   |
-| **Occlusion**     | Dynamic reweighting | Fixed feature extraction |
-| **Interpretable** | Attention weights   | Hidden states (opaque)   |
-| **Speed**         | GPU-parallelizable  | Sequential bottleneck    |
+Sikap-Salita uses two models: the **Siformer** (SignTransformer) and the **Bi-LSTM baseline** (InceptionV3GRU). Both operate on MediaPipe Holistic keypoint features extracted offline.
 
-**When to use Transformer:**
+| Aspect            | SignTransformer (Siformer)  | InceptionV3GRU (Bi-LSTM baseline) |
+| ----------------- | --------------------------- | --------------------------------- |
+| **Input**         | Keypoints [T, 178]          | Features [T, 2048]                |
+| **Architecture**  | Attention encoder           | GRU (recurrent)                   |
+| **Context**       | Global (parallel)           | Local (sequential)                |
+| **Pretrained**    | No                          | No (MediaPipe features)           |
+| **Parameters**    | ~2M                         | ~50K trainable                    |
+| **Memory**        | Lower                       | Lower                             |
+| **Occlusion**     | Dynamic reweighting         | Fixed sequential processing       |
+| **Interpretable** | Attention weights           | Hidden states (opaque)            |
+| **Speed**         | GPU-parallelizable          | Sequential bottleneck             |
+
+**When to use Siformer (SignTransformer):**
 
 - Need interpretability (attention visualization)
 - Handle occlusions gracefully
 - Lower memory constraints
-- Prefer end-to-end learning
+- Prefer global temporal context
 
-**When to use InceptionV3-GRU:**
+**When to use Bi-LSTM baseline (InceptionV3GRU):**
 
-- Have precomputed features
-- Want transfer learning benefits
-- Need strong baseline quickly
+- Have precomputed MediaPipe Holistic features
+- Need a strong recurrent baseline for comparison
+- Prefer sequential temporal modeling
 - Limited training data
 
 ---
@@ -554,20 +541,13 @@ self.category_head = nn.Linear(hidden2, num_cat)     # 12 → 10
 - `gloss_logits`: `[batch, 105]` raw scores
 - `cat_logits`: `[batch, 10]` raw scores
 
-### InceptionV3GRU
+### InceptionV3GRU (Bi-LSTM baseline)
 
 **Input (features)**:
 
 - Shape: `[batch, time, 2048]`
 - Type: `torch.FloatTensor`
-- Content: Precomputed InceptionV3 features
-
-**Input (raw frames)**:
-
-- Shape: `[batch, time, 3, 256, 256]`
-- Type: `torch.FloatTensor`
-- Range: ImageNet normalized
-- Content: RGB frames
+- Content: Precomputed MediaPipe Holistic keypoint features
 
 **Optional Lengths**:
 
@@ -633,11 +613,11 @@ log_probs = log_probs.permute(1, 0, 2)  # [T, B, C]
 
 ### InceptionV3GRUCtc
 
-**Architecture**: InceptionV3 feature extractor + GRU + CTC head
+**Architecture**: GRU (Bi-LSTM baseline) + CTC head operating on MediaPipe Holistic features
 
 **Input/Output**:
 
-- Input: `[B, T, 2048]` InceptionV3 features
+- Input: `[B, T, 2048]` precomputed MediaPipe Holistic features
 - Output: `[B, T, 106]` log probabilities (105 glosses + 1 blank)
 
 **Usage**:
@@ -659,7 +639,7 @@ log_probs = model(x, lengths=lengths)  # [B, T, 106]
 - ❌ No pooling layer
 - ✅ Full temporal output
 - ✅ Single CTC head
-- ✅ Uses precomputed InceptionV3 features
+- ✅ Uses precomputed MediaPipe Holistic features
 
 ### CTC vs Classification
 

@@ -1,6 +1,6 @@
 # Training Guide
 
-This guide covers training sign language recognition models using Transformer or InceptionV3-GRU architectures.
+This guide covers training Sikap-Salita sign language recognition models using the Siformer (Transformer) or Bi-LSTM baseline architectures. Both models consume features extracted via MediaPipe Holistic (75 landmarks, 225 values/frame).
 
 ## Prerequisites
 
@@ -31,7 +31,7 @@ For complete label mappings, see [Label Mapping Table](../data/labels/LABEL_MAPP
 
 ### Basic Training
 
-**Transformer (Keypoints)**:
+**Siformer / Transformer (Keypoints)**:
 
 ```powershell
 python training/train.py ^
@@ -47,7 +47,7 @@ python training/train.py ^
   --output-dir trained_models/transformer/FSL105_classification
 ```
 
-**InceptionV3-GRU (Features)**:
+**Bi-LSTM Baseline / InceptionV3-GRU (MediaPipe Holistic Features)**:
 
 ```powershell
 python training/train.py ^
@@ -139,11 +139,11 @@ data/processed/
 - Shape: `[T, 178]`
 - Content: 89 keypoints × 2 coordinates (x, y)
 
-**InceptionV3-GRU (Features)**:
+**Bi-LSTM Baseline / InceptionV3-GRU (MediaPipe Holistic Features)**:
 
 - Key: `X2048`
 - Shape: `[T, 2048]`
-- Content: Precomputed InceptionV3 features
+- Content: Precomputed MediaPipe Holistic keypoint features
 
 **Additional keys**:
 
@@ -479,19 +479,20 @@ python preprocessing/utils/validate_npz.py data/processed/FSL105_val --require-x
 
 ## Model Notes
 
-**Transformer**:
+**Siformer (Transformer)**:
 
 - Uses attention masks for variable-length sequences
 - Benefits from larger batch sizes
 - Lower memory footprint
 - Provides attention weights for interpretability
+- Input: MediaPipe Holistic keypoints via the `X` NPZ key
 
-**InceptionV3-GRU**:
+**Bi-LSTM Baseline (InceptionV3-GRU)**:
 
-- Uses pretrained ImageNet weights
-- Processes precomputed features
+- Processes precomputed MediaPipe Holistic features
 - Requires `X2048` key in NPZ files
-- Higher memory requirements
+- No CNN backbone — features are extracted offline via MediaPipe
+- Lower memory requirements compared to CNN-based pipelines
 
 Both models support multi-task learning with configurable loss weights and curriculum strategies.
 
@@ -622,10 +623,10 @@ python -m training.train ^
   --output-dir trained_models/iv3_gru/FSL105_ctc
 ```
 
-**Note**: Both models were trained with identical hyperparameters (where applicable) to ensure fair comparison. The only differences are:
+**Note**: Both models were trained with identical hyperparameters (where applicable) to ensure fair comparison. All features are extracted via MediaPipe Holistic. The only differences are:
 
-- **Data input**: Keypoints for Transformer vs Features for InceptionV3GRU
-- **Model-specific parameters**: Transformer uses default architecture parameters, while InceptionV3GRU uses `hidden1=42`, `hidden2=34`, `dropout=0.34`, and `--no-freeze-backbone`
+- **Data input**: Keypoints (`X` key) for Siformer vs features (`X2048` key) for Bi-LSTM baseline
+- **Model-specific parameters**: Siformer uses default architecture parameters, while the Bi-LSTM baseline uses `hidden1=42`, `hidden2=34`, `dropout=0.34`, and `--no-freeze-backbone`
 
 ### CTC-Specific Parameters
 

@@ -63,7 +63,7 @@ def render_summary_stats_horizontal(completed_files: List) -> None:
             if occlusion_status == "Yes":
                 occluded_count += 1
     
-    # Horizontal layout: Total Files, Original NPZ, Preprocessed Videos, Transformer Compatible, IV3-GRU Compatible, Occluded
+    # Horizontal layout: Total Files, Original NPZ, Preprocessed Videos, Siformer Compatible, Bi-LSTM Compatible, Occluded
     summary_col1, summary_col2, summary_col3, summary_col4, summary_col5, summary_col6 = st.columns(6)
     
     with summary_col1:
@@ -327,7 +327,7 @@ def render_sequence_overview(npz_dict: Dict, sequence_length: int) -> Tuple[np.n
             # Check model_type to determine what to display
             model_type = meta_parsed.get('model_type') if meta_parsed else None
             if model_type == 'I':
-                # IV3-GRU only - just show valid keypoints, no transformer ready
+                # Bi-LSTM only - just show valid keypoints, no Siformer ready
                 pass
             elif model_type in ['T', 'B'] or model_type is None:
                 # Transformer or Both or legacy - show transformer ready

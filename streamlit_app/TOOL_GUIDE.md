@@ -1,4 +1,4 @@
-# PANSINAYAN Tool Guide
+# Sikap-Salita Tool Guide
 
 ### _Where Every Sign Gets Attention_
 
@@ -6,7 +6,7 @@ Interactive application for Filipino Sign Language Recognition model comparison 
 
 ## Overview
 
-**PANSINAYAN** is a comprehensive web-based tool for Filipino Sign Language Recognition, providing a complete interface for video preprocessing, model prediction, validation, and visualization. The name embodies the system's core innovation: using Multi-Head Attention mechanisms to give every sign the attention it deserves.
+**Sikap-Salita** is a comprehensive web-based tool for Filipino Sign Language Recognition, providing a complete interface for video preprocessing, model prediction, validation, and visualization. The system uses a Siformer (feature-isolated transformer) architecture alongside a Bi-LSTM baseline to give every sign the attention it deserves.
 
 The application includes pre-trained models for 105 Filipino sign words across 10 semantic categories, leveraging attention-based architectures to achieve robust recognition even under challenging conditions like occlusion.
 
@@ -15,12 +15,12 @@ The application includes pre-trained models for 105 Filipino sign words across 1
 - **Glosses**: 105 sign words (IDs: 0-104)
 - **Categories**: 10 semantic categories (IDs: 0-9)
   - GREETING, SURVIVAL, NUMBER, CALENDAR, DAYS, FAMILY, RELATIONSHIPS, COLOR, FOOD, DRINK
-- **Pre-trained Models**: Transformer and IV3-GRU models trained on FSL-105 dataset
+- **Pre-trained Models**: Siformer and Bi-LSTM models trained on FSL-105 dataset
 - **Demo Files**: Available in `data/demo/` for testing
 
 ## Quick Start
 
-### Launch PANSINAYAN
+### Launch Sikap-Salita
 
 ```powershell
 # From project root
@@ -41,11 +41,11 @@ streamlit run run_app.py --server.port 8501
 python show_network_info.py
 ```
 
-PANSINAYAN will open in your default browser at `http://localhost:8501`.
+Sikap-Salita will open in your default browser at `http://localhost:8501`.
 
 ### Mobile Camera Uploads
 
-PANSINAYAN supports direct camera capture on mobile devices:
+Sikap-Salita supports direct camera capture on mobile devices:
 
 - **iOS Safari**: Tap "Browse files" to access camera
 - **Android Chrome**: Select camera from file picker
@@ -64,23 +64,22 @@ PANSINAYAN supports direct camera capture on mobile devices:
 
 **Dual Model Support:**
 
-- **Transformer**: Uses keypoints [T, 178]
-- **IV3-GRU**: Uses InceptionV3 features [T, 2048]
+- **Siformer**: Uses keypoints [T, 225] from MediaPipe Holistic (75 landmarks)
+- **Bi-LSTM**: Uses keypoints [T, 225] as baseline comparison
 - Real-time prediction with confidence scores
 - Top-5 gloss predictions and top-3 category predictions
 
 **Model Paths:**
 
-- Transformer: `trained_models/transformer/FSL105_classification/SignTransformer_best.pt`
-- IV3-GRU: `trained_models/iv3_gru/FSL105_classification/InceptionV3GRU_best.pt`
+- Siformer: `trained_models/transformer/FSL105_classification/SignTransformer_best.pt`
+- Bi-LSTM: `trained_models/iv3_gru/FSL105_classification/InceptionV3GRU_best.pt`
 
 ### 2. Video Preprocessing Pipeline
 
 **Extraction Options:**
 
-- **Keypoints (178-D)**: MediaPipe pose, hands, and face landmarks
-- **IV3 Features (2048-D)**: InceptionV3 CNN features
-- **Both**: Extract both feature types simultaneously
+- **Keypoints (225-D)**: MediaPipe Holistic landmarks (75 landmarks, 225 values/frame)
+- **Both**: Extract keypoints for both Siformer and Bi-LSTM simultaneously
 
 **Processing Features:**
 
@@ -215,8 +214,7 @@ PANSINAYAN supports direct camera capture on mobile devices:
 **Configure Processing:**
 
 1. Select extraction type:
-   - Keypoints only (Transformer)
-   - IV3 Features only (IV3-GRU)
+   - Keypoints only (Siformer / Bi-LSTM)
    - Both (Compare models)
 2. Set FPS (15-30 recommended)
 3. Set frame size (256 default)
@@ -234,7 +232,7 @@ PANSINAYAN supports direct camera capture on mobile devices:
 **Single Prediction:**
 
 1. Select NPZ file or upload video
-2. Choose model: Transformer or IV3-GRU
+2. Choose model: Siformer or Bi-LSTM
 3. View prediction results:
    - Predicted gloss with confidence
    - Predicted category with confidence
@@ -280,17 +278,16 @@ PANSINAYAN supports direct camera capture on mobile devices:
 
 The application automatically detects and displays model compatibility:
 
-- **T (Transformer)**: Uses 178-D keypoints from MediaPipe
+- **Siformer**: Feature-isolated transformer using 225-D keypoints from MediaPipe Holistic
 
-  - Input: Pose (25 points), Hands (21 points each), Face (22 points)
-  - Processes sequential keypoint data
+  - Input: MediaPipe Holistic (75 landmarks, 225 values/frame)
+  - Processes sequential keypoint data with feature-isolated attention
   - Provides attention weights for interpretability
 
-- **I (IV3-GRU)**: Uses 2048-D InceptionV3 features
+- **Bi-LSTM**: Bidirectional LSTM baseline using 225-D keypoints from MediaPipe Holistic
 
-  - Input: Pre-computed CNN features
-  - Leverages transfer learning from ImageNet
-  - Processes visual appearance features
+  - Input: MediaPipe Holistic (75 landmarks, 225 values/frame)
+  - Bidirectional sequential processing for context-aware recognition
 
 - **B (Both)**: Contains both feature types
   - Enables model comparison

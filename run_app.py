@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Launcher script for the Pansinayan Web app."""
+"""Launcher script for the Sikap-Salita live demo."""
 
-from streamlit_app import main
+import uvicorn
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run("live_demo.app:app", host="0.0.0.0", port=8000)

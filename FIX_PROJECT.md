@@ -1,6 +1,6 @@
-# PANSINAYAN — Setup & Fixes Guide
+# Sikap-Salita — Setup & Fixes Guide
 
-Everything needed to get PANSINAYAN running from a fresh clone. Apply these fixes before launching.
+Everything needed to get Sikap-Salita running from a fresh clone. Apply these fixes before launching.
 
 ---
 
@@ -114,10 +114,10 @@ Apply this change to all six `checkpoint_path` entries:
 Also update the page icon path:
 ```python
 # BEFORE:
-'page_icon': 'Pansinayan Icon.svg',
+'page_icon': 'Sikap-Salita Icon.svg',
 
 # AFTER:
-'page_icon': str(_PROJECT_ROOT / 'Pansinayan Icon.svg'),
+'page_icon': str(_PROJECT_ROOT / 'Sikap-Salita Icon.svg'),
 ```
 
 ---

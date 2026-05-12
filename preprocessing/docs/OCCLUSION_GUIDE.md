@@ -638,7 +638,7 @@ This will provide frame-by-frame analysis in the metadata.
 
 ## Research Context
 
-**Built for:** Filipino Sign Language recognition research (Transformer vs InceptionV3-GRU comparison).
+**Built for:** Filipino Sign Language recognition research (Siformer vs Bi-LSTM comparison).
 
 **What it enables:**
 

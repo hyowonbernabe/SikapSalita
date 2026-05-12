@@ -13,8 +13,8 @@ _PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 # Page configuration
 PAGE_CONFIG = {
-    'page_title': 'PANSINAYAN',
-    'page_icon': str(_PROJECT_ROOT / 'Pansinayan Icon.svg'),
+    'page_title': 'Sikap-Salita',
+    'page_icon': str(_PROJECT_ROOT / 'Sikap-Salita Icon.svg'),
     'layout': 'wide',
     'initial_sidebar_state': 'expanded'
 }

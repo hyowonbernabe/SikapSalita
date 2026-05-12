@@ -1,7 +1,8 @@
-"""Training entrypoint for sign language recognition models.
+"""Training entrypoint for Sikap-Salita sign language recognition models.
 
-Supports multi-task training, multiple model architectures, and various training
-features including curriculum learning, loss weighting strategies, and data augmentation.
+Supports multi-task training for the Siformer (Transformer) and Bi-LSTM baseline
+architectures, with curriculum learning, loss weighting strategies, and data augmentation.
+Input features are extracted via MediaPipe Holistic (75 landmarks, 225 values/frame).
 
 Usage:
     python training/train.py --model transformer --epochs 50 \\
@@ -50,9 +51,11 @@ class TeeLogger:
             self.log_file.close()
 
 class FSLFeatureFileDataset(Dataset):
-    """PyTorch Dataset for precomputed visual features from InceptionV3 backbone.
-    
-    Loads pre-extracted features with shape [T, 2048] from .npz files.
+    """PyTorch Dataset for precomputed MediaPipe Holistic features.
+
+    Loads pre-extracted keypoint features with shape [T, 2048] from .npz files.
+    Features are extracted offline via MediaPipe Holistic (75 landmarks, 225 values/frame)
+    and used as input to the Bi-LSTM baseline (InceptionV3GRU) model.
     """
     def __init__(self, features_dir, labels_csv, feature_key='X2048', augment=False, augment_params=None, mode='classification', signer_filter=None, return_metadata=False):
         self.features_dir = features_dir

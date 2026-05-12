@@ -1,11 +1,11 @@
-Transformer Model Directory
-============================
+Siformer (Transformer) Model Directory
+========================================
 
-This directory should contain trained Transformer model checkpoints for Filipino Sign Language Recognition.
+This directory contains trained Siformer (Transformer) model checkpoints for Sikap-Salita Filipino Sign Language Recognition. Input is MediaPipe Holistic keypoints (75 landmarks, 225 values/frame).
 
 Directory Structure
 -------------------
-Place your trained Transformer models in the following structure:
+Place your trained Siformer (Transformer) models in the following structure:
 
 transformer/
 ├── FSL105_classification/

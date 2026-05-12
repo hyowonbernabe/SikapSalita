@@ -1,10 +1,10 @@
 # Trained Model Guide
 
-Management and usage of trained model artifacts for the FSLR pipeline.
+Management and usage of trained model artifacts for the Sikap-Salita pipeline.
 
 ## Overview
 
-This directory contains trained models for Filipino Sign Language Recognition. Both SignTransformer and InceptionV3GRU models were trained under identical conditions using the same dataset, hyperparameters, and training configuration to ensure fair comparison.
+This directory contains trained models for Sikap-Salita Filipino Sign Language Recognition. Both the Siformer (SignTransformer) and the Bi-LSTM baseline (InceptionV3GRU) were trained under identical conditions using the same dataset, hyperparameters, and training configuration to ensure fair comparison. All models consume features extracted via MediaPipe Holistic (75 landmarks, 225 values/frame).
 
 ## Directory Structure
 
@@ -164,13 +164,13 @@ print(f"Predicted gloss: {gloss_pred}")
 print(f"Predicted category: {cat_pred}")
 ```
 
-**InceptionV3GRU (Features)**:
+**InceptionV3GRU / Bi-LSTM baseline (MediaPipe Holistic Features)**:
 
 ```python
 import numpy as np
 import torch
 
-# Load NPZ file with features
+# Load NPZ file with precomputed MediaPipe Holistic features
 data = np.load('path/to/clip.npz')
 features = data['X2048']  # Shape: [T, 2048]
 

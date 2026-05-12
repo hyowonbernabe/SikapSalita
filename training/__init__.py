@@ -1,14 +1,17 @@
 """
-Training module for Filipino Sign Language Recognition.
+Training module for the Sikap-Salita Filipino Sign Language Recognition system.
 
 This module provides training functionality for sign language recognition models,
 including multi-task learning (gloss and category classification) with configurable loss weights.
+Features are extracted via MediaPipe Holistic (75 landmarks, 225 values/frame) and consumed by:
+- Siformer (SignTransformer): attention-based keypoint encoder
+- Bi-LSTM baseline (InceptionV3GRU): recurrent model for temporal sequence modeling
 
 Key Components:
 - FSLDataset: PyTorch Dataset for sign language sequences
-- FSLFeatureFileDataset: Dataset for precomputed visual features
+- FSLFeatureFileDataset: Dataset for precomputed MediaPipe Holistic features
 - Training utilities and evaluation functions
-- Support for both Transformer and InceptionV3+GRU models
+- Support for both Siformer (Transformer) and Bi-LSTM baseline models
 
 Usage:
     from training import FSLDataset, evaluate

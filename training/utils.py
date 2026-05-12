@@ -1,7 +1,8 @@
 """
-Training utilities for sign language recognition models.
+Training utilities for the Sikap-Salita sign language recognition system.
 
-Provides FSLDataset for sign language sequences and evaluation functions.
+Provides FSLDataset for sign language sequences (MediaPipe Holistic keypoint features)
+and evaluation functions for the Siformer and Bi-LSTM baseline models.
 """
 
 import torch
@@ -71,7 +72,7 @@ def evaluate(model, dataloader, criterion, device):
     Evaluate a sign language recognition model on a dataset.
     
     Args:
-        model: Model to evaluate (SignTransformer or IV3_GRU)
+        model: Model to evaluate (Siformer/SignTransformer or Bi-LSTM baseline/InceptionV3GRU)
         dataloader: DataLoader containing evaluation data
         criterion: Loss function (typically CrossEntropyLoss)
         device: Device to run evaluation on (CPU/CUDA)

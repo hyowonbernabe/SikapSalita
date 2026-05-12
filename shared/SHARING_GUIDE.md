@@ -4,7 +4,7 @@
 
 The `shared/` directory contains:
 
-1. **Comprehensive system documentation** (`pansinayan_docus/`) - All system and research documentation
+1. **Comprehensive system documentation** (`sikap-salita_docus/`) - All system and research documentation
 2. **Deployment resources** (`for vast ai/`) - Vast.ai-specific configurations and components
 
 This guide provides an overview of the directory structure and contents.
@@ -13,12 +13,12 @@ This guide provides an overview of the directory structure and contents.
 
 ```
 shared/
-├── pansinayan_docus/                  # Comprehensive system documentation
-│   ├── pansinayan_doc_index.md        # Master documentation index
-│   ├── pansinayan_quick_reference.md  # Quick reference & commands
-│   ├── pansinayan_system_architecture.md  # Streamlit tool architecture
-│   ├── pansinayan_training_pipeline.md    # ML research pipeline
-│   ├── pansinayan_complete_pipeline.md    # User workflow guide
+├── sikap-salita_docus/                  # Comprehensive system documentation
+│   ├── sikap-salita_doc_index.md        # Master documentation index
+│   ├── sikap-salita_quick_reference.md  # Quick reference & commands
+│   ├── sikap-salita_system_architecture.md  # Streamlit tool architecture
+│   ├── sikap-salita_training_pipeline.md    # ML research pipeline
+│   ├── sikap-salita_complete_pipeline.md    # User workflow guide
 │   └── thesis_methodology.md          # Research methodology
 ├── for vast ai/                       # Vast.ai deployment resources
 │   ├── VAST.AI_GUIDE.md              # Complete Vast.ai setup guide
@@ -43,18 +43,18 @@ The `for vast ai/` folder contains modified Streamlit components that are compat
 - **VAST.AI_GUIDE.md**: Complete setup instructions including port configuration, data download, model deployment, and tunnel setup
 - **PREPROCESS_VAST.md**: Instructions for preprocessing raw video data on Vast.ai instances
 
-## PANSINAYAN Documentation (`pansinayan_docus/`)
+## Sikap-Salita Documentation (`sikap-salita_docus/`)
 
-This folder contains the complete system documentation for PANSINAYAN:
+This folder contains the complete system documentation for Sikap-Salita:
 
-- **pansinayan_doc_index.md**: Master index to navigate all documentation - **start here**
-- **pansinayan_quick_reference.md**: Visual overview, command cheat sheet, and troubleshooting guide
-- **pansinayan_system_architecture.md**: Complete Streamlit tool architecture (managers, components, data flow)
-- **pansinayan_training_pipeline.md**: ML research pipeline (data preprocessing → training → evaluation)
-- **pansinayan_complete_pipeline.md**: End-to-end user workflow guide for the Streamlit application
+- **sikap-salita_doc_index.md**: Master index to navigate all documentation - **start here**
+- **sikap-salita_quick_reference.md**: Visual overview, command cheat sheet, and troubleshooting guide
+- **sikap-salita_system_architecture.md**: Complete Streamlit tool architecture (managers, components, data flow)
+- **sikap-salita_training_pipeline.md**: ML research pipeline (data preprocessing → training → evaluation)
+- **sikap-salita_complete_pipeline.md**: End-to-end user workflow guide for the Streamlit application
 - **thesis_methodology.md**: Research methodology and theoretical framework
 
-**To navigate the documentation**, start with `pansinayan_doc_index.md` for a complete index and learning paths.
+**To navigate the documentation**, start with `sikap-salita_doc_index.md` for a complete index and learning paths.
 
 ## Using Shared Resources
 
@@ -85,14 +85,14 @@ Processed data is stored in `data/processed/` with the following structure:
 
 Pre-trained models are located in `trained_models/cmb/`:
 
-- **Transformer**: `trained_models/cmb/transformer/`
-- **IV3-GRU**: `trained_models/cmb/iv3_gru/`
+- **Siformer**: `trained_models/cmb/transformer/`
+- **Bi-LSTM**: `trained_models/cmb/iv3_gru/`
 
 Both models are trained on the combined dataset (fsl-105 + sample-105).
 
 ## Training with Processed Data
 
-### Transformer Training
+### Siformer Training
 
 ```powershell
 python -m training.train ^
@@ -103,7 +103,7 @@ python -m training.train ^
   --labels-val-csv data\processed\cmb_val.csv
 ```
 
-### IV3-GRU Training
+### Bi-LSTM Training
 
 ```powershell
 python -m training.train ^
@@ -128,8 +128,8 @@ python -m preprocessing.utils.validate_npz data\processed\cmb_val --require-x204
 
 **Documentation**:
 
-- Complete system documentation is in `shared/pansinayan_docus/`
-- Start with `pansinayan_doc_index.md` for navigation
+- Complete system documentation is in `shared/sikap-salita_docus/`
+- Start with `sikap-salita_doc_index.md` for navigation
 
 **Data**:
 

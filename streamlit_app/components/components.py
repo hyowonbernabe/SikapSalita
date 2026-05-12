@@ -801,8 +801,8 @@ def render_sidebar() -> Dict:
     }
     </style>
     <div class='sidebar-header' style='text-align: left; padding: 0 0 0.5rem 0; border-bottom: 1px solid #4a5568; margin-bottom: 0.5rem; margin-top: -1rem;'>
-        <h1>PANSINAYAN</h1>
-        <p style='color: #a0aec0; font-size: 0.9rem; margin: 0.1rem 0 0 0; font-weight: 400;'>Where Every Sign Gets Attention</p>
+        <h1>Sikap-Salita</h1>
+        <p style='color: #a0aec0; font-size: 0.9rem; margin: 0.1rem 0 0 0; font-weight: 400;'>Filipino Sign Language to Text-to-Speech</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -837,25 +837,25 @@ def render_sidebar() -> Dict:
     # About the Tool (Expandable)
     with st.sidebar.expander("About the Tool", expanded=False):
         st.markdown("""
-        **PANSINAYAN** is a Multi-Head Attention Transformer for recognizing Filipino Sign Language (FSL).
-        
+        **Sikap-Salita** is a Siformer and Bi-LSTM baseline system for recognizing Filipino Sign Language (FSL).
+
         ### What This Demo Does:
-        
+
         **Video Processing**
         - Upload FSL videos or use pre-processed keypoint data
         - Automatic extraction of hand, face, and body landmarks
         - Converts videos to structured numerical features
-        
+
         **Data Analysis**
         - Real-time validation of input data quality
         - Interactive visualization of keypoints over time
         - Frame-by-frame feature analysis with charts
-        
+
         **AI Recognition**
         - Predicts 1 of 105 Filipino Sign Language glosses
         - Detects occlusion (when hands/face are blocked)
-        - Compare two architectures: **Transformer** vs **InceptionV3+GRU**
-        
+        - Compare two architectures: **Siformer** vs **Bi-LSTM baseline**
+
         **Model Comparison**
         - Ground-truth vs prediction sequence comparison
         - Temporal alignment over continuous timelines
@@ -867,29 +867,29 @@ def render_sidebar() -> Dict:
     # About the Name (Expandable)
     with st.sidebar.expander("About the Name", expanded=False):
         st.markdown("""
-        **PANSINAYAN** is a Filipino portmanteau with deep meaning:
-        
+        **Sikap-Salita** is a Filipino phrase that captures the purpose of this tool:
+
         ### Word Formation:
         ```
-        PANSIN  +  SENYAS  +  -AN
-           ↓          ↓        ↓
-        attention   sign    place
+        SIKAP   +   SALITA
+          ↓            ↓
+        effort    word/speech
         ```
-        
-        **= "The place where signs receive attention"**
-        
+
+        **= "The effort of communication through language"**
+
         ---
-        
+
         ### Why This Name?
-        
-        **Technical Connection**  
-        The name reflects our **Multi-Head Attention** mechanism — the core innovation that lets the AI focus on relevant sign language features simultaneously.
-        
-        **Cultural Respect**  
-        A Filipino name honors the Filipino Deaf community and recognizes FSL as a complete language with its own grammar.
-        
-        **Our Mission**  
-        Every sign — and every signer — deserves attention, recognition, and inclusivity.
+
+        **Mission**
+        The name reflects the core purpose: empowering Filipino deaf signers to communicate through technology, bridging the gap between sign language and spoken word.
+
+        **Cultural Connection**
+        A Filipino name honors the Filipino Deaf community and recognizes FSL as a complete language with its own grammar and identity.
+
+        **Our Goal**
+        Every sign deserves to be heard.
         """)
     
     # Model Status Section
@@ -1360,10 +1360,10 @@ def render_main_header() -> None:
     st.markdown("""
     <div style='text-align: center; margin-top: -2rem; margin-bottom: 1rem;'>
         <div style='font-size: 3.5rem; font-weight: bold; color: #1f77b4; margin-bottom: 0.2rem;'>
-            PANSINAYAN
+            Sikap-Salita
         </div>
         <div style='color: #a0aec0; font-size: 1.2rem; font-weight: 400;'>
-            Where Every Sign Gets Attention
+            Filipino Sign Language to Text-to-Speech
         </div>
     </div>
     """, unsafe_allow_html=True)

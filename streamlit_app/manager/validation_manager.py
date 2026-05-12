@@ -88,7 +88,7 @@ class ValidationDataset:
             return X, sample['gloss'], sample['cat'], sample['occluded'], sample['file']
         
         elif self.model_type.startswith('iv3_gru'):
-            # IV3-GRU uses 2048-dimensional InceptionV3 features
+            # Bi-LSTM uses 2048-dimensional features
             if 'X2048' not in data:
                 raise ValueError(f"NPZ file {sample['npz_path']} missing 'X2048' key for IV3-GRU model (expected 2048-D features)")
             X = torch.from_numpy(data['X2048']).float()

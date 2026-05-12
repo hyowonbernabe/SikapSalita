@@ -94,12 +94,12 @@ class BatchedInceptionV3Processor:
         return tensor.squeeze(0)  # Remove batch dimension for individual frame processing
     
     def extract_batch_features(self, frames_bgr, image_size=(299, 299)):
-        """Extract InceptionV3 features for a batch of frames efficiently.
-        
+        """Extract MediaPipe Holistic landmarks for a batch of frames efficiently.
+
         Args:
             frames_bgr: List of BGR frames to process
             image_size: Target size for InceptionV3 (299, 299)
-            
+
         Returns:
             np.ndarray: Feature vectors [batch_size, 2048] or empty array if no frames
         """
@@ -117,12 +117,12 @@ class BatchedInceptionV3Processor:
         return features.cpu().numpy()
     
     def extract_single_features(self, frame_bgr, image_size=(299, 299)):
-        """Extract InceptionV3 features from a single frame (compatible with extract_iv3_features).
-        
+        """Extract MediaPipe Holistic landmarks from a single frame (compatible with extract_iv3_features).
+
         Args:
             frame_bgr: Single BGR frame to process
             image_size: Target size for InceptionV3 (299, 299)
-            
+
         Returns:
             np.ndarray: Feature vector [2048] as float32 numpy array
         """
@@ -130,7 +130,7 @@ class BatchedInceptionV3Processor:
         return batch_features[0] if len(batch_features) > 0 else np.zeros(2048, dtype=np.float32)
 
 def extract_iv3_features(frame_bgr, image_size=(299, 299), device=None):
-    """Extract InceptionV3 features from a single BGR frame.
+    """Extract MediaPipe Holistic landmarks from a single BGR frame.
     
     This function performs the complete pipeline for CNN feature extraction:
     1. Color space conversion (BGR to RGB)
@@ -245,13 +245,13 @@ def to_npz(out_path, X, X2048, mask, timestamps_ms, meta, also_parquet=True):
     """Save processed video data (keypoints + CNN features) to compressed .npz file.
     
     This function saves the complete output of video processing: keypoint coordinates,
-    InceptionV3 features, visibility masks, timestamps, and metadata. The .npz format
+    MediaPipe Holistic landmarks, visibility masks, timestamps, and metadata. The .npz format
     is used for efficient storage and fast loading during training.
     
     Args:
         out_path: Base path for output files (without extension)
         X: Keypoint coordinates [T, 178] as float32 - flattened x,y coords for 89 keypoints
-        X2048: InceptionV3 features [T, 2048] as float32 - CNN feature vectors
+        X2048: MediaPipe Holistic landmarks [T, 2048] as float32 - CNN feature vectors
         mask: Keypoint visibility mask [T, 89] as bool - True if keypoint is visible/confident
         timestamps_ms: Frame timestamps [T] as int64 - milliseconds from video start
         meta: Metadata dictionary (converted to JSON string) - processing parameters
@@ -337,7 +337,7 @@ def process_video(video_path, out_dir, label_file=None, target_fps=30, out_size=
         conf_thresh: Confidence threshold for keypoint detection (0.0-1.0)
         max_gap: Maximum gap size for keypoint interpolation (frames, default=5)
         write_keypoints: Extract MediaPipe keypoints (178D vectors per frame)
-        write_iv3_features: Extract InceptionV3 features (2048D vectors per frame)
+        write_iv3_features: Extract MediaPipe Holistic landmarks (2048D vectors per frame)
         feature_key: Unused parameter (kept for compatibility)
         gloss: Sign language gloss class ID for labeling
         cat: Category class ID for labeling
@@ -416,7 +416,7 @@ def process_video(video_path, out_dir, label_file=None, target_fps=30, out_size=
 
             # STEP 4d: Extract InceptionV3 CNN features (if requested)
             if write_iv3_features:
-                # Extract 2048-D InceptionV3 features from the original BGR frame
+                # Extract 2048-D MediaPipe Holistic landmarks from the original BGR frame
                 # Uses original frame (not resized) to preserve image quality for CNN
                 iv3_features = extract_iv3_features(frame_bgr, image_size=(299, 299), device=device)
                 X2048_frames.append(iv3_features)
@@ -488,7 +488,7 @@ def process_video(video_path, out_dir, label_file=None, target_fps=30, out_size=
 
 if __name__ == "__main__":
     # COMMAND-LINE INTERFACE: Setup argument parser for single video processing
-    parser = argparse.ArgumentParser(description="Single video preprocessing with keypoints and InceptionV3 features")
+    parser = argparse.ArgumentParser(description="Single video preprocessing with keypoints and MediaPipe Holistic landmarks")
     
     # Required arguments
     parser.add_argument('video_path', type=str, help='Path to the video file to process')

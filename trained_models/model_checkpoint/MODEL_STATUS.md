@@ -28,7 +28,7 @@ The model files are stored using Git LFS (Large File Storage), but the actual bi
 
 2. **Initialize Git LFS in the repository**:
    ```bash
-   cd /home/novelle/Documents/fslr-transformer-vs-iv3gru
+   cd /path/to/Sikap-Salita
    git lfs install
    ```
 
