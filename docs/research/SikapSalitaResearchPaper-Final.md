@@ -22,7 +22,7 @@ With this, this study aims to:
 1. extract skeletal landmarks from FSL-105 video clips using MediaPipe Holistic and construct a normalized, augmented dataset;  
 2. train and compare a Bi-LSTM baseline and the Siformer under identical conditions, evaluated via top-1/top-5 accuracy, macro F1, and 5-fold cross-validation;  
 3. integrate the recognition pipeline with Qwen3-TTS and NLLB-200 for bilingual spoken output; and  
-4. develop a PyQt6 desktop application and evaluate end-to-end performance through quantitative metrics and Mean Opinion Score (MOS) evaluation.
+4. develop a FastAPI web application and evaluate end-to-end performance through quantitative metrics and Mean Opinion Score (MOS) evaluation.
 
 Furthermore, this study directly addresses the communication gap hindering the deaf community's autonomy, aligning with UN SDGs 4 (Quality Education), 10 (Reduced Inequalities), and 11 (Sustainable Cities and Communities). It contributes to FSL-specific technology research through: (a) the first application of Siformer to FSL, (b) a controlled model comparison as a benchmark for future FSL studies, (c) a reproducible methodology trained on the open-access FSL-105 dataset, and (d) a working prototype integrating recognition, translation, and speech synthesis. The systematic review findings further underscore that user-centered design and responsiveness may be as critical as raw accuracy, an insight that will guide the evaluation of Sikap-Salita's end-to-end user experience [\[16\]](#bookmark=id.tikhbsav50v3).
 
@@ -50,7 +50,7 @@ Most recently, Pu et al. [\[14\]](#bookmark=id.clrmmqdwurrd) proposed Siformer, 
 
 ## **2.1 	Materials and Methods**
 
-This study employed an applied experimental research design involving iterative software prototype development followed by quantitative performance evaluation. The core scientific contribution is a controlled comparison between the Bi-LSTM baseline and Siformer under identical data conditions. Development followed five phases: (1) data pipeline construction (landmark extraction, normalization, augmentation); (2) sign recognition model training and comparative evaluation; (3) TTS and translation integration; (4) desktop application development; and (5) end-to-end system evaluation.
+This study employed an applied experimental research design involving iterative software prototype development followed by quantitative performance evaluation. The core scientific contribution is a controlled comparison between the Bi-LSTM baseline and Siformer under identical data conditions. Development followed five phases: (1) data pipeline construction (landmark extraction, normalization, augmentation); (2) sign recognition model training and comparative evaluation; (3) TTS and translation integration; (4) web application development; and (5) end-to-end system evaluation.
 
 ![][image1]  
 **Figure 1\. Five Phases of the System Development**
@@ -96,16 +96,16 @@ The output of the preprocessing pipeline is a set of .npy files (NumPy binary fo
 **Figure 3\. Sign Recognition Models Process**  
 Model A – Bi-LSTM Baseline: Two stacked Bi-LSTM layers (256 hidden units, 30% dropout) followed by attention pooling, a dense layer (512 units, 30% dropout), and softmax output over 105 classes (\~2–3M parameters). Trained with AdamW, learning rate 0.001 with cosine decay, batch size 32, up to 100 epochs with early stopping (patience 15), cross-entropy loss with label smoothing (0.1).
 
-Model B – Siformer: A feature-isolated transformer that separates left hand, right hand, and body landmarks into three independent transformer streams before fusing for classification. Additional features include kinematic hand pose rectification and input-adaptive inference (\~5–10M parameters, 86.50% top-1 accuracy on WLASL100). Trained with AdamW, learning rate 0.0005 with cosine warmup \+ decay, batch size 16, up to 150 epochs with early stopping (patience 20). Pre-trained WLASL weights will be used for transfer learning if available.
+Model B – Siformer: A feature-isolated transformer that separates left hand, right hand, and body landmarks into three independent transformer streams before fusing for classification. Additional features include kinematic hand pose rectification and input-adaptive inference (\~5–10M parameters). In its original paper [\[14\]](#bookmark=id.clrmmqdwurrd), Siformer achieved 86.50% top-1 accuracy on WLASL100 (an ASL dataset); this study evaluates its performance on FSL-105 under identical preprocessing conditions. Trained with AdamW, learning rate 0.0005 with cosine warmup \+ decay, batch size 16, up to 150 epochs with early stopping (patience 20). Pre-trained WLASL weights will be used for transfer learning if available.
 
 **Table 3\. Model B Settings & Value Summary**
 
 | Setting | Value |  |  |
 | ----- | ----- | ----- | ----- |
 | Optimizer | AdamW |  |  |
-| Learning rate | 0.001, with cosine decay |  |  |
-| Batch size | 32 |  |  |
-| Epochs | 100, with early stopping (patience 15\) |  |  |
+| Learning rate | 0.0005, with cosine warmup \+ decay |  |  |
+| Batch size | 16 |  |  |
+| Epochs | 150, with early stopping (patience 20\) |  |  |
 | Loss function | Cross-entropy with label smoothing (0.1) |  |  |
 
 ### *2.2.4 	Text-to-Speech and Translation*
@@ -146,7 +146,7 @@ Sikap-Salita followed a four-component sequential pipeline, each with a defined 
 | Sign Recognition | Bi-LSTM / Siformer  | GPU | Bi-LSTM provides recurrent baseline; Siformer handles missing joints gracefully |
 | Translation | Facebook NLLB-200 (600M) | CPU | 200+ languages including Filipino; preserves GPU memory |
 | Speech Synthesis | Qwen3-TTS 0.6B  | GPU | Neural TTS fits within 8GB VRAM alongside other components |
-| Desktop App | PyQt6 | CPU | Native desktop UI with full camera and audio control |
+| Web Application | FastAPI + Browser Frontend | CPU | Lightweight web server; enables real-time skeleton visualization and bilingual output in any browser |
 
 3. # **RESULTS/FINDINGS**
 

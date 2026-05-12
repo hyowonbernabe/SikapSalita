@@ -134,8 +134,6 @@
     /* Dwell bar */
     .dwell-wrap { height: 3px; background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
     #dwell-bar { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; transition: width .25s linear; }
-    #dwell-bar.processing { animation: barPulse .6s ease-in-out infinite; }
-    @keyframes barPulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
     /* Top prediction */
     .top-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
@@ -182,65 +180,6 @@
       flex-shrink: 0;
     }
     .info-btn:hover { background: rgba(255,255,255,.14); color: var(--primary); }
-
-    /* ── Upload Modal ───────────────────────────────────────────────── */
-    #upload-backdrop {
-      position: fixed; inset: 0; background: rgba(0,0,0,.4);
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-      z-index: 1000; display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity .25s;
-    }
-    #upload-backdrop.open { opacity: 1; pointer-events: auto; }
-    #upload-modal {
-      background: var(--surface); border: 1px solid rgba(255,255,255,.08);
-      border-radius: 14px; width: min(520px, 92vw); max-height: 86vh;
-      box-shadow: 0 18px 60px rgba(0,0,0,.55);
-      transform: translateY(12px) scale(.98); transition: transform .25s ease;
-      display: flex; flex-direction: column; overflow: hidden;
-    }
-    #upload-backdrop.open #upload-modal { transform: translateY(0) scale(1); }
-    .um-header {
-      display: flex; align-items: center; gap: 12px;
-      padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,.06);
-    }
-    .um-header h3 { flex: 1; font-size: 14px; font-weight: 700; letter-spacing: .06em; color: var(--primary); }
-    .um-filename { font-size: 11px; color: var(--muted); font-family: ui-monospace, monospace; }
-    .um-close {
-      width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(255,255,255,.1);
-      background: var(--bg); color: var(--muted); cursor: pointer; font-size: 14px;
-      display: flex; align-items: center; justify-content: center;
-      transition: background .15s, color .15s;
-    }
-    .um-close:hover { background: rgba(255,255,255,.08); color: var(--primary); }
-    .um-body { padding: 24px 22px; }
-    .um-busy { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 20px 0; }
-    .um-spinner {
-      width: 40px; height: 40px;
-      border: 3px solid rgba(255,255,255,.08); border-top-color: var(--accent);
-      border-radius: 50%; animation: umspin 1s linear infinite;
-    }
-    @keyframes umspin { to { transform: rotate(360deg); } }
-    .um-status { font-size: 13px; color: var(--muted); letter-spacing: .03em; min-height: 18px; text-align: center; }
-    .um-result { display: none; }
-    .um-result.show { display: block; }
-    .um-result-top {
-      display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
-      padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.06); margin-bottom: 14px;
-    }
-    .um-result-label { font-size: 26px; font-weight: 800; color: var(--primary); letter-spacing: .02em; }
-    .um-result-fil { font-size: 13px; color: var(--accent); font-style: italic; }
-    .um-result-cat {
-      background: rgba(76,175,130,.15); color: var(--accent);
-      padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; letter-spacing: .05em;
-    }
-    .um-result-conf { margin-left: auto; font-size: 24px; font-weight: 700; color: var(--accent); }
-    .um-top5-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
-    .um-top5-row { display: grid; grid-template-columns: 140px 1fr 50px; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; }
-    .um-top5-label { color: var(--primary); font-weight: 600; }
-    .um-top5-barwrap { background: var(--bg); height: 8px; border-radius: 4px; overflow: hidden; }
-    .um-top5-bar { background: var(--accent); height: 100%; width: 0%; transition: width .3s ease; }
-    .um-top5-conf { text-align: right; color: var(--muted); font-family: ui-monospace, monospace; }
-    .um-meta { margin-top: 16px; font-size: 11px; color: var(--muted); border-top: 1px solid rgba(255,255,255,.06); padding-top: 12px; }
 
     /* ── Info Panel Overlay ─────────────────────────────────────────── */
     #info-backdrop {
@@ -440,12 +379,6 @@
     <span class="tagline">FSL Recognition &nbsp;·&nbsp; Saint Louis University, Baguio City</span>
   </div>
   <div class="spacer"></div>
-  <!-- Demo button intentionally hidden (handler + code kept for quick re-enable). -->
-  <!-- <button class="lang-btn" id="btn-demo" onclick="startDemo()">▶ DEMO</button> -->
-  <div class="lang-toggle" title="Upload a video file for the model to predict">
-    <button class="lang-btn" id="btn-upload" onclick="openUploadPicker()">⬆ UPLOAD</button>
-  </div>
-  <input type="file" id="upload-input" accept="video/mp4,video/quicktime,video/*" style="display:none" onchange="handleUploadPick(event)">
   <!-- Language toggle -->
   <div class="lang-toggle">
     <button class="lang-btn active" id="btn-lang-en" onclick="setLang('en')">EN</button>
@@ -456,36 +389,6 @@
   <div class="tag">FSL-105</div>
   <button class="info-btn" onclick="toggleInfo()" title="System Information">i</button>
 </header>
-
-<!-- Upload result modal -->
-<div id="upload-backdrop" onclick="closeUploadModalFromBackdrop(event)">
-  <div id="upload-modal" onclick="event.stopPropagation()">
-    <div class="um-header">
-      <h3>SIFORMER PREDICTION</h3>
-      <div class="um-filename" id="um-filename"></div>
-      <button class="um-close" onclick="closeUploadModal()" title="Close">✕</button>
-    </div>
-    <div class="um-body">
-      <div class="um-busy" id="um-busy">
-        <div class="um-spinner"></div>
-        <div class="um-status" id="um-status">Uploading file…</div>
-      </div>
-      <div class="um-result" id="um-result">
-        <div class="um-result-top">
-          <div>
-            <div class="um-result-label" id="um-label">—</div>
-            <div class="um-result-fil" id="um-label-fil"></div>
-          </div>
-          <div class="um-result-cat" id="um-cat">—</div>
-          <div class="um-result-conf" id="um-conf">—</div>
-        </div>
-        <div class="um-top5-title">TOP 5 PREDICTIONS</div>
-        <div id="um-top5"></div>
-        <div class="um-meta" id="um-meta"></div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Info Panel -->
 <div id="info-backdrop" onclick="toggleInfo()"></div>
@@ -965,9 +868,9 @@
 
   // ── Config ────────────────────────────────────────────────────────────
   const MIN_FRAMES   = 30;
-  const POLL_MS      = 150;  // inference cadence — MediaPipe ~20ms so 150ms is safe
+  const POLL_MS      = 150;   // inference cadence — MediaPipe ~20ms so 150ms is safe
   const JPEG_Q       = 0.7;
-  const DWELL_FRAMES = 20;   // polls held before commit (~3s at 150ms each)
+  const DWELL_FRAMES = 20;    // polls held before commit (~3s at 150ms each)
   const MIN_CONF     = 0.60;
   const COOLDOWN_MS  = 2000;
 
@@ -1066,7 +969,6 @@
   let dwellCount    = 0;
   let cooldownUntil = 0;
   let words         = [];   // English labels (translate at render time)
-  let demoActive    = false;  // when true, ignore real /predict responses
 
 
   // ── TTS via backend ───────────────────────────────────────────────────
@@ -1139,339 +1041,7 @@
     speakSentence();
   });
 
-  // ── Demo mode (scripted playback) ─────────────────────────────────────
-  // Press "Demo" → 5-sign sequence plays out with bars filling and words
-  // committing as if the live model recognized each sign. You sync your
-  // signing to the on-screen timing for a recordable take.
-  const DEMO_SEQUENCE = [
-    { target: 'HELLO',            cat: 'GREETING', alts: ['NICE TO MEET YOU', 'HOW ARE YOU',   'GOOD MORNING',   'THANK YOU'] },
-    { target: 'HOW ARE YOU',      cat: 'GREETING', alts: ['HELLO',            'IM FINE',       'NICE TO MEET YOU','GOOD AFTERNOON'] },
-    { target: 'IM FINE',          cat: 'GREETING', alts: ['HOW ARE YOU',      'THANK YOU',     'GOOD MORNING',    'YOURE WELCOME'] },
-    { target: 'THANK YOU',        cat: 'GREETING', alts: ['YOURE WELCOME',    'NICE TO MEET YOU','IM FINE',       'SEE YOU TOMORROW'] },
-    { target: 'SEE YOU TOMORROW', cat: 'GREETING', alts: ['GOOD MORNING',     'THANK YOU',     'NICE TO MEET YOU','GOOD AFTERNOON'] },
-  ];
-
-  // Out-of-category distractors. Pulled from labels that actually showed up
-  // in real test runs (chicken, wheelchair, crab, etc.) — makes the noise
-  // floor look unmistakably model-generated.
-  const DISTRACTORS = [
-    // FOOD / DRINK (the classic "hand near face" false-positives)
-    { label: 'CHICKEN',           cat: 'FOOD' },
-    { label: 'CRAB',              cat: 'FOOD' },
-    { label: 'SHRIMP',            cat: 'FOOD' },
-    { label: 'RICE',              cat: 'FOOD' },
-    { label: 'BREAD',             cat: 'FOOD' },
-    { label: 'EGG',               cat: 'FOOD' },
-    { label: 'MILK',              cat: 'DRINK' },
-    { label: 'COFFEE',            cat: 'DRINK' },
-    { label: 'TEA',               cat: 'DRINK' },
-    { label: 'HOT',               cat: 'DRINK' },
-    { label: 'COLD',              cat: 'DRINK' },
-    { label: 'NO SUGAR',          cat: 'DRINK' },
-    // RELATIONSHIPS — model loves these on flipped/odd orientations
-    { label: 'WEELCHAIR PERSON',  cat: 'RELATIONSHIPS' },
-    { label: 'DEAF',              cat: 'RELATIONSHIPS' },
-    { label: 'DEAF BLIND',        cat: 'RELATIONSHIPS' },
-    { label: 'BLIND',             cat: 'RELATIONSHIPS' },
-    { label: 'HARD OF HEARING',   cat: 'RELATIONSHIPS' },
-    { label: 'GIRL',              cat: 'RELATIONSHIPS' },
-    { label: 'BOY',               cat: 'RELATIONSHIPS' },
-    // FAMILY
-    { label: 'MOTHER',            cat: 'FAMILY' },
-    { label: 'FATHER',            cat: 'FAMILY' },
-    { label: 'UNCLE',             cat: 'FAMILY' },
-    // SURVIVAL
-    { label: 'YES',               cat: 'SURVIVAL' },
-    { label: 'NO',                cat: 'SURVIVAL' },
-    { label: 'UNDERSTAND',        cat: 'SURVIVAL' },
-    { label: "DON'T KNOW",        cat: 'SURVIVAL' },
-    { label: 'SLOW',              cat: 'SURVIVAL' },
-    // CALENDAR / DAYS
-    { label: 'MONDAY',            cat: 'DAYS' },
-    { label: 'WEDNESDAY',         cat: 'DAYS' },
-    { label: 'FRIDAY',            cat: 'DAYS' },
-    { label: 'OCTOBER',           cat: 'CALENDAR' },
-    { label: 'JUNE',              cat: 'CALENDAR' },
-    { label: 'DECEMBER',          cat: 'CALENDAR' },
-    // NUMBERS
-    { label: 'THREE',             cat: 'NUMBER' },
-    { label: 'SEVEN',             cat: 'NUMBER' },
-    // COLORS
-    { label: 'RED',               cat: 'COLOR' },
-    { label: 'GRAY',              cat: 'COLOR' },
-  ];
-
-  function pickAlt(step, exclude=[]) {
-    const pool = step.alts.filter(a => !exclude.includes(a));
-    return pool[Math.floor(Math.random() * pool.length)] || step.alts[0];
-  }
-  function pickDistractor() {
-    return DISTRACTORS[Math.floor(Math.random() * DISTRACTORS.length)];
-  }
-
-  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-  async function startDemo() {
-    if (demoActive) return;
-    demoActive = true;
-    document.getElementById('btn-demo')?.classList.add('active');
-    words = []; renderSentence();
-    clearPredictions();
-    dwellBar.style.width = '0%';
-
-    // 3-second pre-roll countdown so user can prepare
-    warmupEl.classList.remove('hidden');
-    warmupBar.style.width = '0%';
-    for (let n = 3; n >= 1; n--) {
-      warmupTxt.textContent = `Demo starts in ${n}…`;
-      await sleep(1000);
-    }
-    warmupTxt.textContent = 'Go!';
-    await sleep(300);
-    warmupEl.classList.add('hidden');
-
-    for (const step of DEMO_SEQUENCE) {
-      await playDemoStep(step);
-    }
-    demoActive = false;
-    document.getElementById('btn-demo')?.classList.remove('active');
-  }
-
-  async function playDemoStep(step) {
-    // Phase A — idle gap (user lifts hands, gets into position)
-    clearPredictions();
-    dwellBar.style.width = '0%';
-    await sleep(1500);
-
-    // Phase B — chaotic noise: top-1 swaps freely between target, alts, and
-    // out-of-category distractors. Target is just one of the candidates.
-    for (let i = 0; i < 10; i++) {
-      const a1   = pickAlt(step);
-      const a2   = pickAlt(step, [a1]);
-      const d1   = pickDistractor();
-      const d2   = pickDistractor();
-      // Pool of 5 candidates competing for top-3
-      const pool = [
-        { label: step.target, category: step.cat, confidence: clampConf(0.20 + i * 0.045 + (Math.random() - 0.5) * 0.35) },
-        { label: a1,          category: step.cat, confidence: clampConf(0.18 + (Math.random() - 0.5) * 0.30) },
-        { label: a2,          category: step.cat, confidence: clampConf(0.14 + (Math.random() - 0.5) * 0.28) },
-        { label: d1.label,    category: d1.cat,   confidence: clampConf(0.12 + (Math.random() - 0.5) * 0.30) },
-        { label: d2.label,    category: d2.cat,   confidence: clampConf(0.10 + (Math.random() - 0.5) * 0.28) },
-      ];
-      pool.sort((a, b) => b.confidence - a.confidence);
-      renderFakePredictions(pool.slice(0, 3));
-      await sleep(190);
-    }
-
-    // Phase C — lock-in: target trends up but realistically loses top spot
-    // often early on, then dominates as it converges. Dwell bar advances on
-    // target-on-top ticks and regresses when an alt steals first.
-    const lockSteps = DWELL_FRAMES;  // 20 ticks
-    let dwellAccum = 0;
-    for (let i = 0; i < lockSteps; i++) {
-      // Progress factor 0..1 across lock-in
-      const p = i / lockSteps;
-      // Target climb: 0.55 → 0.97 with sinusoidal wobble + noise
-      const wobble = Math.sin(i * 1.3) * 0.06 + (Math.random() - 0.5) * 0.06;
-      const tConf  = clampConf(0.55 + p * 0.42 + wobble);
-
-      // Alts/distractors get LESS confident over time but with bursts that
-      // can occasionally beat target — frequency drops as we near commit.
-      // burst_prob: 60% early → 5% late
-      const burstProb = 0.60 * (1 - p) + 0.05;
-
-      const a1 = pickAlt(step);
-      const a2 = pickAlt(step, [a1]);
-
-      // Build candidate pool of 5
-      const pool = [
-        { label: step.target, category: step.cat, confidence: tConf },
-        { label: a1,          category: step.cat, confidence: clampConf(0.20 + (Math.random() - 0.5) * 0.30 - p * 0.10) },
-        { label: a2,          category: step.cat, confidence: clampConf(0.14 + (Math.random() - 0.5) * 0.25 - p * 0.10) },
-      ];
-      // Occasionally inject distractors into the pool
-      if (Math.random() < 0.55 + burstProb * 0.3) {
-        const d = pickDistractor();
-        pool.push({ label: d.label, category: d.cat, confidence: clampConf(0.10 + (Math.random() - 0.5) * 0.30 - p * 0.05) });
-      }
-      if (Math.random() < 0.30) {
-        const d = pickDistractor();
-        pool.push({ label: d.label, category: d.cat, confidence: clampConf(0.08 + (Math.random() - 0.5) * 0.25 - p * 0.05) });
-      }
-
-      // Random "burst" — temporarily boost a non-target candidate to challenge top spot
-      if (Math.random() < burstProb && pool.length > 1) {
-        const idx = 1 + Math.floor(Math.random() * (pool.length - 1));
-        pool[idx].confidence = clampConf(tConf + 0.05 + Math.random() * 0.15);
-      }
-
-      pool.sort((a, b) => b.confidence - a.confidence);
-      const row = pool.slice(0, 3);
-      renderFakePredictions(row);
-
-      // Dwell logic — advance on target-top, regress on miss
-      if (row[0].label === step.target) {
-        dwellAccum = Math.min(lockSteps, dwellAccum + 1);
-      } else {
-        dwellAccum = Math.max(0, dwellAccum - 0.8);
-      }
-      dwellBar.style.width = (dwellAccum / lockSteps * 100) + '%';
-
-      await sleep(180);
-    }
-
-    // Force-fill to 100% just before commit (in case of regressions)
-    dwellBar.style.width = '100%';
-    await sleep(150);
-
-    // Phase D — commit (word added + spoken)
-    commitWord(step.target);
-    dwellBar.style.width = '0%';
-
-    // Phase E — cooldown (drop hands, breathe)
-    await sleep(1500);
-  }
-
-  function clampConf(v) { return Math.max(0.01, Math.min(0.99, v)); }
-
-  function renderFakePredictions(preds) {
-    const [p0, p1, p2] = preds;
-    topLabel.textContent = p0.label;
-    showTranslated(p0.label);
-    topBadge.textContent = p0.category; topBadge.classList.remove('hidden');
-    topConf.textContent  = pct(p0.confidence) + '%';
-    topBar.style.width   = pct(p0.confidence) + '%';
-    if (p1) { alt1Label.textContent = displayText(p1.label); alt1Conf.textContent = pct(p1.confidence)+'%'; alt1Bar.style.width = pct(p1.confidence)+'%'; }
-    if (p2) { alt2Label.textContent = displayText(p2.label); alt2Conf.textContent = pct(p2.confidence)+'%'; alt2Bar.style.width = pct(p2.confidence)+'%'; }
-  }
-
-  // ── Upload modal (isolated from live feed) ────────────────────────────
-  // Opens a centered dialog with blurred backdrop. The live cam + predictions
-  // keep running underneath, untouched. Status text cycles through phases
-  // while the backend processes; top-5 renders inside the modal when done.
-  const umBackdrop = () => document.getElementById('upload-backdrop');
-  const umBusy     = () => document.getElementById('um-busy');
-  const umResult   = () => document.getElementById('um-result');
-  const umStatus   = () => document.getElementById('um-status');
-
-  let uploadInFlight = false;
-  let phaseTimer = null;
-
-  function openUploadPicker() {
-    if (uploadInFlight) return;
-    document.getElementById('upload-input').click();
-  }
-
-  async function handleUploadPick(event) {
-    const file = event.target.files[0];
-    event.target.value = '';  // allow re-pick of same file
-    if (!file) return;
-    await uploadAndPredict(file);
-  }
-
-  function openUploadModal(filename) {
-    document.getElementById('um-filename').textContent = filename;
-    umBusy().style.display = 'flex';
-    umResult().classList.remove('show');
-    umBackdrop().classList.add('open');
-  }
-
-  function closeUploadModal() {
-    if (uploadInFlight) return;  // can't close mid-request
-    umBackdrop().classList.remove('open');
-  }
-
-  function closeUploadModalFromBackdrop(event) {
-    if (event.target.id === 'upload-backdrop') closeUploadModal();
-  }
-
-  function setPhase(text) { umStatus().textContent = text; }
-
-  function startPhaseSimulation() {
-    // Backend doesn't stream progress, so we simulate phase changes.
-    // Each phase lights up sequentially; if the request finishes early,
-    // setPhase('Done') wins via the await below.
-    const phases = [
-      { at:    0, text: 'Uploading file…' },
-      { at:  900, text: 'Extracting keypoints with MediaPipe…' },
-      { at: 3500, text: 'Running SignTransformer model…' },
-      { at: 7000, text: 'Finalising predictions…' },
-    ];
-    if (phaseTimer) { clearTimeout(phaseTimer); phaseTimer = null; }
-    const start = Date.now();
-    function tick() {
-      const elapsed = Date.now() - start;
-      let cur = phases[0].text;
-      for (const p of phases) if (elapsed >= p.at) cur = p.text;
-      setPhase(cur);
-      phaseTimer = setTimeout(tick, 250);
-    }
-    tick();
-  }
-
-  function stopPhaseSimulation() {
-    if (phaseTimer) { clearTimeout(phaseTimer); phaseTimer = null; }
-  }
-
-  async function uploadAndPredict(file) {
-    uploadInFlight = true;
-    document.getElementById('btn-upload').classList.add('active');
-    openUploadModal(file.name);
-    startPhaseSimulation();
-
-    try {
-      const fd = new FormData();
-      fd.append('file', file);
-      const res = await fetch('/predict_video', { method: 'POST', body: fd });
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      stopPhaseSimulation();
-      setPhase('Done');
-      renderUploadResultModal(data);
-    } catch (e) {
-      stopPhaseSimulation();
-      setPhase('Upload failed: ' + e.message);
-      console.error('[upload]', e);
-    } finally {
-      uploadInFlight = false;
-      document.getElementById('btn-upload').classList.remove('active');
-    }
-  }
-
-  function renderUploadResultModal(data) {
-    const top5 = data.top5 || [];
-    if (top5.length === 0) return;
-    umBusy().style.display = 'none';
-    umResult().classList.add('show');
-
-    const p0 = top5[0];
-    document.getElementById('um-label').textContent     = p0.label;
-    document.getElementById('um-label-fil').textContent = translate(p0.label) === p0.label ? '' : translate(p0.label);
-    document.getElementById('um-cat').textContent       = p0.category;
-    document.getElementById('um-conf').textContent      = pct(p0.confidence) + '%';
-
-    const list = document.getElementById('um-top5');
-    list.innerHTML = '';
-    for (const p of top5) {
-      const row = document.createElement('div');
-      row.className = 'um-top5-row';
-      row.innerHTML =
-        `<div class="um-top5-label">${p.label}</div>` +
-        `<div class="um-top5-barwrap"><div class="um-top5-bar" style="width:${pct(p.confidence)}%"></div></div>` +
-        `<div class="um-top5-conf">${pct(p.confidence)}%</div>`;
-      list.appendChild(row);
-    }
-    document.getElementById('um-meta').textContent =
-      `Siformer · processed ${data.frames || 0} keypoint frame${(data.frames||0) === 1 ? '' : 's'} at 30 fps target · FSL-105 vocabulary.`;
-    console.log('[upload]', data);
-  }
-
-  // Esc closes modal
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && umBackdrop()?.classList.contains('open')) closeUploadModal();
-  });
-
-  // ── Dwell logic (original v1 commit-on-hold) ──────────────────────────
+  // ── Dwell logic ───────────────────────────────────────────────────────
   function updateDwell(predictions, handsDetected) {
     if (!handsDetected || predictions.length === 0) {
       dwellLabel = null; dwellCount = 0; dwellBar.style.width = '0%'; return;
@@ -1517,37 +1087,9 @@
       skelCtx.beginPath(); skelCtx.arc(p.x, p.y, r, 0, Math.PI*2); skelCtx.fill();
     }
   }
-  // Persistence: cache last-seen landmark positions per keypoint. When
-  // MediaPipe briefly drops a point (common during fast hand motion), we
-  // keep drawing the last known position for up to KP_TTL_MS so the
-  // skeleton doesn't flicker off.
-  const KP_TTL_MS    = 500;
-  const NUM_KP       = 89;
-  const cachedLm     = new Float32Array(178);
-  const cachedMask   = new Uint8Array(NUM_KP);
-  const cachedSeenAt = new Float64Array(NUM_KP);
-
-  function persistKeypoints(lm, mask) {
-    const now = performance.now();
-    for (let i = 0; i < NUM_KP; i++) {
-      if (mask[i]) {
-        cachedLm[i*2]   = lm[i*2];
-        cachedLm[i*2+1] = lm[i*2+1];
-        cachedMask[i]   = 1;
-        cachedSeenAt[i] = now;
-      } else if (cachedMask[i] && (now - cachedSeenAt[i]) > KP_TTL_MS) {
-        cachedMask[i] = 0;
-      }
-    }
-  }
-
   function drawSkeleton(lm, mask) {
-    persistKeypoints(lm, mask);
     skelCanvas.width = skelCanvas.offsetWidth; skelCanvas.height = skelCanvas.offsetHeight;
     skelCtx.clearRect(0, 0, skelCanvas.width, skelCanvas.height);
-    // From here on, use the persisted snapshot so flicker is hidden
-    lm   = cachedLm;
-    mask = cachedMask;
     const tf = coverTransform();
     drawConns(lm, mask, POSE_CONNECTIONS, 0,  'rgba(148,137,121,0.55)', 2, tf);
     drawDots (lm, mask, 0,  25, 'rgba(148,137,121,0.7)',   3, tf);
@@ -1574,10 +1116,8 @@
 
   function updateUI(data) {
     const { predictions, buffered_frames, hands_detected, landmarks, landmark_mask } = data;
-    // Skeleton always draws (even during demo — those tracking dots sell the recording)
-    if (landmarks && landmark_mask) drawSkeleton(landmarks, landmark_mask);
-    if (demoActive) return;  // scripted demo owns the prediction UI from here down
     warmupBar.style.width = Math.min(buffered_frames / MIN_FRAMES, 1) * 100 + '%';
+    if (landmarks && landmark_mask) drawSkeleton(landmarks, landmark_mask);
     updateDwell(predictions, hands_detected);
 
     if (!hands_detected) {
@@ -1613,6 +1153,13 @@
       if (res.ok) updateUI(await res.json());
     } catch (_) { } finally { polling = false; }
   }
+
+  // ── Skeleton render loop (30fps via rAF, independent of poll cadence) ──
+  function renderLoop() {
+    if (lastLandmarks && lastMask) drawSkeleton(lastLandmarks, lastMask);
+    requestAnimationFrame(renderLoop);
+  }
+  requestAnimationFrame(renderLoop);
 
   // ── Camera init ───────────────────────────────────────────────────────
   async function startCamera() {

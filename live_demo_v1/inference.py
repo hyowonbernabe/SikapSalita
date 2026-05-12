@@ -1,10 +1,5 @@
 """
-Rolling-buffer inference with EMA smoothing for the live FSL demo.
-
-Each /predict call pushes one keypoint frame into a fixed-size buffer.
-predict_top3() runs the SignTransformer on whatever's currently buffered
-and EMA-smooths against the previous two calls so the UI bars don't
-jitter. The frontend's dwell-count is what actually commits a word.
+Rolling frame buffer and inference engine for the live FSL demo.
 """
 
 from __future__ import annotations
@@ -35,6 +30,8 @@ def get_labels() -> dict[int, dict]:
 
 
 class FrameBuffer:
+    """Rolling buffer of keypoint vectors for a single user session."""
+
     def __init__(self, max_frames: int = 120, min_frames: int = 30):
         self._deque: collections.deque[np.ndarray] = collections.deque(maxlen=max_frames)
         self._min_frames = min_frames
@@ -49,8 +46,9 @@ class FrameBuffer:
         return len(self._deque)
 
     def to_tensor(self, device: torch.device) -> torch.Tensor:
-        arr = np.stack(list(self._deque), axis=0)
-        return torch.from_numpy(arr).unsqueeze(0).to(device)
+        """Return (1, T, 178) float32 tensor from current buffer contents."""
+        arr = np.stack(list(self._deque), axis=0)        # (T, 178)
+        return torch.from_numpy(arr).unsqueeze(0).to(device)  # (1, T, 178)
 
 
 def smooth_predictions(
@@ -58,6 +56,10 @@ def smooth_predictions(
     history: list[list[dict]],
     window: int = 3,
 ) -> list[dict]:
+    """Average confidence scores over `window` consecutive prediction calls.
+
+    Returns a new list sorted by smoothed confidence descending.
+    """
     recent = (history + [current])[-window:]
     if len(recent) == 1:
         return current
@@ -80,6 +82,7 @@ def smooth_predictions(
     return smoothed[: len(current)]
 
 
+# Global buffer and prediction history (single-user demo)
 _buffer = FrameBuffer(max_frames=120, min_frames=30)
 _pred_history: list[list[dict]] = []
 
@@ -89,6 +92,7 @@ def push_frame(vec178: np.ndarray) -> None:
 
 
 def predict_top3() -> list[dict[str, Any]]:
+    """Run inference on the current buffer. Returns [] during warmup."""
     if not _buffer.ready():
         return []
 
@@ -96,9 +100,9 @@ def predict_top3() -> list[dict[str, Any]]:
     labels = get_labels()
 
     with torch.no_grad():
-        x = _buffer.to_tensor(device)
-        gloss_logits, _ = model(x)
-        probs = torch.softmax(gloss_logits, dim=-1)[0]
+        x = _buffer.to_tensor(device)                      # (1, T, 178)
+        gloss_logits, _ = model(x)                         # (1, 105), (1, 10)
+        probs = torch.softmax(gloss_logits, dim=-1)[0]     # (105,)
 
     top3_vals, top3_ids = torch.topk(probs, k=3)
     current = [
@@ -118,9 +122,3 @@ def predict_top3() -> list[dict[str, Any]]:
 
 def buffered_frame_count() -> int:
     return len(_buffer)
-
-
-def reset() -> None:
-    global _pred_history
-    _buffer._deque.clear()
-    _pred_history = []

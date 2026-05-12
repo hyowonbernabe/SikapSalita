@@ -41,13 +41,11 @@ def shutdown_models() -> None:
         _models = None
 
 
-def extract_from_jpeg_bytes(data: bytes, flip_h: bool = False) -> tuple[np.ndarray, np.ndarray]:
-    """Decode JPEG bytes and return (vec178, mask89).
+def extract_from_jpeg_bytes(data: bytes) -> tuple[np.ndarray, np.ndarray]:
+    """Decode a raw JPEG bytes object and return (vec178, mask89).
 
     vec178: (178,) float32 normalised keypoint coordinates
     mask89: (89,) bool — True where a keypoint was actually detected
-    flip_h: if True, horizontally flip the frame before keypoint extraction
-            (use when the webcam capture is mirrored relative to training data)
 
     Skips background segmentation (used in training pipeline) for demo speed.
     """
@@ -57,16 +55,17 @@ def extract_from_jpeg_bytes(data: bytes, flip_h: bool = False) -> tuple[np.ndarr
         return np.zeros(178, dtype=np.float32), np.zeros(89, dtype=bool)
 
     frame_bgr_resized, _ = resize_with_aspect_ratio_and_pad(frame_bgr, target_size=256)
-    if flip_h:
-        frame_bgr_resized = cv2.flip(frame_bgr_resized, 1)
     frame_rgb = cv2.cvtColor(frame_bgr_resized, cv2.COLOR_BGR2RGB)
 
     vec178, mask89 = extract_keypoints_from_frame(frame_rgb, get_models(), conf_thresh=0.35)
     return np.clip(vec178, 0.0, 1.0).astype(np.float32), mask89
 
 
-def extract_from_base64(b64_string: str, flip_h: bool = False) -> tuple[np.ndarray, np.ndarray]:
-    """Accept a base64-encoded JPEG string (with or without data-URI prefix)."""
+def extract_from_base64(b64_string: str) -> tuple[np.ndarray, np.ndarray]:
+    """Accept a base64-encoded JPEG string (with or without data-URI prefix).
+
+    Returns (vec178, mask89) — see extract_from_jpeg_bytes.
+    """
     if "," in b64_string:
         b64_string = b64_string.split(",", 1)[1]
-    return extract_from_jpeg_bytes(base64.b64decode(b64_string), flip_h=flip_h)
+    return extract_from_jpeg_bytes(base64.b64decode(b64_string))

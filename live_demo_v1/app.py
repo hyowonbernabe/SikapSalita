@@ -6,39 +6,19 @@ Start with:
     .venv/Scripts/python -m uvicorn live_demo.app:app --host 0.0.0.0 --port 8000
 """
 
-import os
-import sys
-import tempfile
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-import cv2
-import numpy as np
-import torch
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from live_demo.keypoints import extract_from_base64, get_models, shutdown_models
-from live_demo.inference import (
-    push_frame,
-    predict_top3,
-    buffered_frame_count,
-    reset,
-)
+from live_demo.inference import push_frame, predict_top3, buffered_frame_count
 from live_demo.model import load_model
 from live_demo.labels import load_labels
 from live_demo.tts import get_audio, warm_cache
-
-# Streamlit-style video preprocess imports for the /predict_video endpoint
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from preprocessing.extractors.keypoints_features import (
-    create_models as create_mp_models,
-    close_models as close_mp_models,
-    extract_keypoints_from_frame,
-)
-from preprocessing.core.preprocess import resize_with_aspect_ratio_and_pad
 
 _STATIC = Path(__file__).parent / "static"
 
@@ -184,7 +164,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Sikap-Salita Live Demo", lifespan=lifespan)
 
 
-# ── /predict (live webcam, one frame at a time) ──────────────────────────────
+# ── /predict ──────────────────────────────────────────────────────────────────
 
 class PredictRequest(BaseModel):
     frame: str  # base64 JPEG, with or without data-URI prefix
@@ -192,7 +172,6 @@ class PredictRequest(BaseModel):
 
 @app.post("/predict")
 async def predict(req: PredictRequest) -> JSONResponse:
-    """Per-frame inference for the live webcam loop."""
     vec178, mask89 = extract_from_base64(req.frame)
     push_frame(vec178)
 
@@ -206,125 +185,6 @@ async def predict(req: PredictRequest) -> JSONResponse:
         "landmarks": vec178.tolist(),
         "landmark_mask": mask89.tolist(),
     })
-
-
-@app.post("/reset")
-async def reset_endpoint() -> JSONResponse:
-    """Clear the rolling buffer + EMA history."""
-    reset()
-    return JSONResponse({"status": "reset"})
-
-
-# ── /predict_video (uploaded clip → streamlit-style preprocess → model) ──────
-
-def _predict_video_file(video_path: str, target_fps: int = 30) -> dict:
-    """Replicate the streamlit-style preprocess: read frames at target_fps,
-    extract keypoints, run SignTransformer once, return top-5.
-
-    This is the same pipeline streamlit_app uses on uploaded videos
-    (preprocessing/core/preprocess.process_video without the NPZ save).
-    """
-    cap = cv2.VideoCapture(video_path)
-    if not cap.isOpened():
-        raise HTTPException(status_code=400, detail=f"Cannot open video: {video_path}")
-
-    src_fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
-    step_s = 1.0 / target_fps
-    next_t = 0.0
-
-    mp_models = create_mp_models(seg_model=1, detection_conf=0.35, tracking_conf=0.25)
-    X: list[np.ndarray] = []
-    try:
-        while True:
-            ret, frame_bgr = cap.read()
-            if not ret:
-                break
-            ms = cap.get(cv2.CAP_PROP_POS_MSEC)
-            if ms < next_t * 1000.0:
-                continue
-            frame_bgr_resized, _ = resize_with_aspect_ratio_and_pad(frame_bgr, target_size=256)
-            frame_rgb = cv2.cvtColor(frame_bgr_resized, cv2.COLOR_BGR2RGB)
-            vec178, _ = extract_keypoints_from_frame(frame_rgb, mp_models, conf_thresh=0.35)
-            X.append(np.clip(vec178, 0.0, 1.0).astype(np.float32))
-            next_t += step_s
-    finally:
-        cap.release()
-        close_mp_models(mp_models)
-
-    if not X:
-        raise HTTPException(status_code=422, detail="No frames extracted from video")
-
-    arr = np.stack(X, axis=0)  # (T, 178)
-    model, device = load_model()
-    labels = load_labels()
-    x = torch.from_numpy(arr).unsqueeze(0).to(device)
-    with torch.no_grad():
-        logits, _ = model(x)
-        probs = torch.softmax(logits, dim=-1)[0]
-    top_v, top_i = torch.topk(probs, k=5)
-    top5 = [
-        {
-            "label": labels[int(idx)]["label"],
-            "category": labels[int(idx)]["category"],
-            "confidence": round(float(val), 4),
-        }
-        for val, idx in zip(top_v, top_i)
-    ]
-
-    return {
-        "frames": int(arr.shape[0]),
-        "top5": top5,
-        "label": top5[0]["label"],
-        "category": top5[0]["category"],
-        "confidence": top5[0]["confidence"],
-    }
-
-
-@app.post("/predict_video")
-async def predict_video(file: UploadFile = File(...)) -> JSONResponse:
-    """Accept an uploaded video file → run streamlit-style inference → top-5."""
-    suffix = Path(file.filename or "upload.mp4").suffix or ".mp4"
-    tmp_path = None
-    try:
-        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-            tmp_path = tmp.name
-            data = await file.read()
-            tmp.write(data)
-        result = _predict_video_file(tmp_path)
-    finally:
-        if tmp_path and os.path.exists(tmp_path):
-            try:
-                os.remove(tmp_path)
-            except OSError:
-                pass
-    return JSONResponse(result)
-
-
-# ── /test_clips (browse the unseen-clip library under data/test/) ────────────
-
-_TEST_DIR = Path(__file__).parent.parent / "data" / "test"
-
-
-@app.get("/test_clips")
-async def list_test_clips() -> JSONResponse:
-    """List videos available under data/test/ (unseen by the model)."""
-    files: list[dict] = []
-    if _TEST_DIR.exists():
-        for p in sorted(_TEST_DIR.iterdir()):
-            if p.is_file() and p.suffix.lower() in (".mp4", ".mov", ".avi", ".mkv"):
-                files.append({"name": p.name, "size_kb": int(p.stat().st_size / 1024)})
-    return JSONResponse({"dir": str(_TEST_DIR), "clips": files})
-
-
-@app.post("/predict_test_clip")
-async def predict_test_clip(req: dict) -> JSONResponse:
-    """Predict on a video already present in data/test/ (no upload needed)."""
-    name = req.get("name", "")
-    safe_name = Path(name).name  # strip any path components
-    path = _TEST_DIR / safe_name
-    if not path.exists():
-        raise HTTPException(status_code=404, detail=f"Clip not found: {safe_name}")
-    return JSONResponse(_predict_video_file(str(path)))
 
 
 # ── /tts ──────────────────────────────────────────────────────────────────────
@@ -359,11 +219,7 @@ async def tts(req: TTSRequest) -> Response:
 
 @app.get("/health")
 async def health() -> JSONResponse:
-    return JSONResponse({
-        "status": "ok",
-        "buffered_frames": buffered_frame_count(),
-        "test_clips_dir": str(_TEST_DIR),
-    })
+    return JSONResponse({"status": "ok", "buffered_frames": buffered_frame_count()})
 
 
 # Static files last — catches all unmatched routes
